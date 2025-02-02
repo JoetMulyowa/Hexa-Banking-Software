@@ -71,6 +71,10 @@ public final class BatchHelper {
      * @param batchRequests
      * @return JSON String of BatchRequest
      */
+    // TODO: Rewrite to use fineract-client instead!
+    // Example: org.apache.fineract.integrationtests.common.loans.LoanTransactionHelper.disburseLoan(java.lang.Long,
+    // org.apache.fineract.client.models.PostLoansLoanIdRequest)
+    @Deprecated(forRemoval = true)
     public static String toJsonString(final List<BatchRequest> batchRequests) {
         return new Gson().toJson(batchRequests);
     }
@@ -81,6 +85,10 @@ public final class BatchHelper {
      * @param
      * @return Map
      */
+    // TODO: Rewrite to use fineract-client instead!
+    // Example: org.apache.fineract.integrationtests.common.loans.LoanTransactionHelper.disburseLoan(java.lang.Long,
+    // org.apache.fineract.client.models.PostLoansLoanIdRequest)
+    @Deprecated(forRemoval = true)
     public static Map generateMapFromJsonString(final String jsonString) {
         return new Gson().fromJson(jsonString, Map.class);
     }
@@ -91,6 +99,10 @@ public final class BatchHelper {
      * @param json
      * @return {@code List<BatchResponse>}
      */
+    // TODO: Rewrite to use fineract-client instead!
+    // Example: org.apache.fineract.integrationtests.common.loans.LoanTransactionHelper.disburseLoan(java.lang.Long,
+    // org.apache.fineract.client.models.PostLoansLoanIdRequest)
+    @Deprecated(forRemoval = true)
     private static List<BatchResponse> fromJsonString(final String json) {
         return new Gson().fromJson(json, new TypeToken<List<BatchResponse>>() {}.getType());
     }
@@ -104,6 +116,10 @@ public final class BatchHelper {
      * @param jsonifiedBatchRequests
      * @return a list of BatchResponse
      */
+    // TODO: Rewrite to use fineract-client instead!
+    // Example: org.apache.fineract.integrationtests.common.loans.LoanTransactionHelper.disburseLoan(java.lang.Long,
+    // org.apache.fineract.client.models.PostLoansLoanIdRequest)
+    @Deprecated(forRemoval = true)
     public static List<BatchResponse> postBatchRequestsWithoutEnclosingTransaction(final RequestSpecification requestSpec,
             final ResponseSpecification responseSpec, final String jsonifiedBatchRequests) {
         final String response = Utils.performServerPost(requestSpec, responseSpec, BATCH_API_WITHOUT_ENCLOSING_URL_EXT,
@@ -112,6 +128,10 @@ public final class BatchHelper {
         return BatchHelper.fromJsonString(response);
     }
 
+    // TODO: Rewrite to use fineract-client instead!
+    // Example: org.apache.fineract.integrationtests.common.loans.LoanTransactionHelper.disburseLoan(java.lang.Long,
+    // org.apache.fineract.client.models.PostLoansLoanIdRequest)
+    @Deprecated(forRemoval = true)
     public static ErrorResponse postBatchRequestsWithoutEnclosingTransactionError(final RequestSpecification requestSpec,
             final ResponseSpecification responseSpec, final String jsonifiedBatchRequests) {
         final String response = Utils.performServerPost(requestSpec, responseSpec, BATCH_API_WITHOUT_ENCLOSING_URL_EXT,
@@ -129,6 +149,10 @@ public final class BatchHelper {
      * @param jsonifiedBatchRequests
      * @return a list of BatchResponse
      */
+    // TODO: Rewrite to use fineract-client instead!
+    // Example: org.apache.fineract.integrationtests.common.loans.LoanTransactionHelper.disburseLoan(java.lang.Long,
+    // org.apache.fineract.client.models.PostLoansLoanIdRequest)
+    @Deprecated(forRemoval = true)
     public static List<BatchResponse> postBatchRequestsWithEnclosingTransaction(final RequestSpecification requestSpec,
             final ResponseSpecification responseSpec, final String jsonifiedBatchRequests) {
         final String response = Utils.performServerPost(requestSpec, responseSpec, BATCH_API_URL_EXT, jsonifiedBatchRequests, null);
@@ -141,6 +165,10 @@ public final class BatchHelper {
      * @param
      * @return {@code List<BatchResponse>}
      */
+    // TODO: Rewrite to use fineract-client instead!
+    // Example: org.apache.fineract.integrationtests.common.loans.LoanTransactionHelper.disburseLoan(java.lang.Long,
+    // org.apache.fineract.client.models.PostLoansLoanIdRequest)
+    @Deprecated(forRemoval = true)
     public static List<BatchResponse> postWithSingleRequest(final RequestSpecification requestSpec,
             final ResponseSpecification responseSpec, final BatchRequest br) {
 
@@ -680,7 +708,7 @@ public final class BatchHelper {
         br.setMethod("POST");
         String dateString = date.format(DateTimeFormatter.ofPattern("dd MMMM yyyy"));
         br.setBody("{\"locale\": \"en\", \"dateFormat\": \"dd MMMM yyyy\", \"approvedOnDate\": \"" + dateString + "\","
-                + "\"note\": \"Loan approval note\"}");
+                + "\"note\": \"Loan approval note\", \"expectedDisbursementDate\": \"" + dateString + "\"}");
 
         return br;
     }
@@ -756,7 +784,7 @@ public final class BatchHelper {
      *            the action to transistion
      * @return BatchRequest the batch request
      */
-    public static BatchRequest transistionLoanStateByExternalId(final Long requestId, final Long reference, final LocalDate date,
+    public static BatchRequest transitionLoanStateByExternalId(final Long requestId, final Long reference, final LocalDate date,
             final String command) {
         final BatchRequest br = new BatchRequest();
 
@@ -769,7 +797,7 @@ public final class BatchHelper {
             br.setBody("{\"locale\": \"en\", \"dateFormat\": \"dd MMMM yyyy\", \"actualDisbursementDate\": \"" + dateString + "\"}");
         } else if ("approve".equals(command)) {
             br.setBody("{\"locale\": \"en\", \"dateFormat\": \"dd MMMM yyyy\", \"approvedOnDate\": \"" + dateString + "\","
-                    + "\"note\": \"Loan approval note\"}");
+                    + "\"note\": \"Loan approval note\", \"expectedDisbursementDate\": \"" + dateString + "\"}");
         }
 
         return br;
@@ -915,6 +943,23 @@ public final class BatchHelper {
      */
     public static BatchRequest goodwillCreditRequest(final Long requestId, final Long reference, final String amount) {
         return createTransactionRequest(requestId, reference, "goodwillCredit", amount, LocalDate.now(Utils.getZoneIdOfTenant()));
+    }
+
+    /**
+     * Creates and returns a {@link CreateTransactionLoanCommandStrategy} request with given request ID for payment
+     * waiver transaction.
+     *
+     *
+     * @param requestId
+     *            the request ID
+     * @param reference
+     *            the reference
+     * @param amount
+     *            the amount
+     * @return BatchRequest the created {@link BatchRequest}
+     */
+    public static BatchRequest interestPaymentWaiverRequest(final Long requestId, final Long reference, final String amount) {
+        return createTransactionRequest(requestId, reference, "interestPaymentWaiver", amount, LocalDate.now(Utils.getZoneIdOfTenant()));
     }
 
     /**

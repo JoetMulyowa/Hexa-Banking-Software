@@ -805,13 +805,13 @@ Feature: Credit Balance Refund
       | 03 August 2023   | Accrual                | 10.0   | 0.0       | 0.0      | 10.0 | 0.0       | 0.0          |
 
   @TestRailId:C2885
-  Scenario: Verify that Loan status goes from overpaid to active in case of CBR transaction (with replaying when CBR>new balance → clears overpaid, remaining increasing loan balance) - PIN4_DOWNPAYMENT_AUTO_ADVANCED_PAYMENT_ALLOCATION loan product
+  Scenario: Verify that Loan status goes from overpaid to active in case of CBR transaction (with replaying when CBR>new balance → clears overpaid, remaining increasing loan balance) - LP2_DOWNPAYMENT_AUTO_ADVANCED_PAYMENT_ALLOCATION loan product
     When Admin sets the business date to "01 September 2023"
     When Admin creates a client with random data
-    When Admin set "PIN4_DOWNPAYMENT_AUTO_ADVANCED_PAYMENT_ALLOCATION" loan product "DEFAULT" transaction type to "NEXT_INSTALLMENT" future installment allocation rule
+    When Admin set "LP2_DOWNPAYMENT_AUTO_ADVANCED_PAYMENT_ALLOCATION" loan product "DEFAULT" transaction type to "NEXT_INSTALLMENT" future installment allocation rule
     When Admin creates a fully customized loan with the following data:
       | LoanProduct                                       | submitted on date | with Principal | ANNUAL interest rate % | interest type | interest calculation period | amortization type  | loanTermFrequency | loanTermFrequencyType | repaymentEvery | repaymentFrequencyType | numberOfRepayments | graceOnPrincipalPayment | graceOnInterestPayment | interest free period | Payment strategy            |
-      | PIN4_DOWNPAYMENT_AUTO_ADVANCED_PAYMENT_ALLOCATION | 01 September 2023 | 1000           | 0                      | FLAT          | SAME_AS_REPAYMENT_PERIOD    | EQUAL_INSTALLMENTS | 45                | DAYS                  | 15             | DAYS                   | 3                  | 0                       | 0                      | 0                    | ADVANCED_PAYMENT_ALLOCATION |
+      | LP2_DOWNPAYMENT_AUTO_ADVANCED_PAYMENT_ALLOCATION | 01 September 2023 | 1000           | 0                      | FLAT          | SAME_AS_REPAYMENT_PERIOD    | EQUAL_INSTALLMENTS | 45                | DAYS                  | 15             | DAYS                   | 3                  | 0                       | 0                      | 0                    | ADVANCED_PAYMENT_ALLOCATION |
     And Admin successfully approves the loan on "01 September 2023" with "1000" amount and expected disbursement date on "01 September 2023"
     When Admin successfully disburse the loan on "01 September 2023" with "1000" EUR transaction amount
     When Admin sets the business date to "16 September 2023"
@@ -876,13 +876,13 @@ Feature: Credit Balance Refund
       | LIABILITY | 145023       | Suspense/Clearing account |       | 100.0  |
 
   @TestRailId:C2886
-  Scenario: Verify that Loan status goes from overpaid to closed in case of CBR transaction when transaction amount equals overpaid amount - PIN4_DOWNPAYMENT_AUTO_ADVANCED_PAYMENT_ALLOCATION loan product
+  Scenario: Verify that Loan status goes from overpaid to closed in case of CBR transaction when transaction amount equals overpaid amount - LP2_DOWNPAYMENT_AUTO_ADVANCED_PAYMENT_ALLOCATION loan product
     When Admin sets the business date to "01 September 2023"
     When Admin creates a client with random data
-    When Admin set "PIN4_DOWNPAYMENT_AUTO_ADVANCED_PAYMENT_ALLOCATION" loan product "DEFAULT" transaction type to "NEXT_INSTALLMENT" future installment allocation rule
+    When Admin set "LP2_DOWNPAYMENT_AUTO_ADVANCED_PAYMENT_ALLOCATION" loan product "DEFAULT" transaction type to "NEXT_INSTALLMENT" future installment allocation rule
     When Admin creates a fully customized loan with the following data:
       | LoanProduct                                       | submitted on date | with Principal | ANNUAL interest rate % | interest type | interest calculation period | amortization type  | loanTermFrequency | loanTermFrequencyType | repaymentEvery | repaymentFrequencyType | numberOfRepayments | graceOnPrincipalPayment | graceOnInterestPayment | interest free period | Payment strategy            |
-      | PIN4_DOWNPAYMENT_AUTO_ADVANCED_PAYMENT_ALLOCATION | 01 September 2023 | 1000           | 0                      | FLAT          | SAME_AS_REPAYMENT_PERIOD    | EQUAL_INSTALLMENTS | 45                | DAYS                  | 15             | DAYS                   | 3                  | 0                       | 0                      | 0                    | ADVANCED_PAYMENT_ALLOCATION |
+      | LP2_DOWNPAYMENT_AUTO_ADVANCED_PAYMENT_ALLOCATION | 01 September 2023 | 1000           | 0                      | FLAT          | SAME_AS_REPAYMENT_PERIOD    | EQUAL_INSTALLMENTS | 45                | DAYS                  | 15             | DAYS                   | 3                  | 0                       | 0                      | 0                    | ADVANCED_PAYMENT_ALLOCATION |
     And Admin successfully approves the loan on "01 September 2023" with "1000" amount and expected disbursement date on "01 September 2023"
     When Admin successfully disburse the loan on "01 September 2023" with "1000" EUR transaction amount
     When Admin sets the business date to "16 September 2023"
@@ -942,13 +942,13 @@ Feature: Credit Balance Refund
       | LIABILITY | 145023       | Suspense/Clearing account |       | 100.0  |
 
   @TestRailId:C2887
-  Scenario: Verify that Loan status goes from overpaid to active in case of Refund transaction was reverted - PIN4_DOWNPAYMENT_AUTO_ADVANCED_PAYMENT_ALLOCATION loan product
+  Scenario: Verify that Loan status goes from overpaid to active in case of Refund transaction was reverted - LP2_DOWNPAYMENT_AUTO_ADVANCED_PAYMENT_ALLOCATION loan product
     When Admin sets the business date to "01 September 2023"
     When Admin creates a client with random data
-    When Admin set "PIN4_DOWNPAYMENT_AUTO_ADVANCED_PAYMENT_ALLOCATION" loan product "DEFAULT" transaction type to "NEXT_INSTALLMENT" future installment allocation rule
+    When Admin set "LP2_DOWNPAYMENT_AUTO_ADVANCED_PAYMENT_ALLOCATION" loan product "DEFAULT" transaction type to "NEXT_INSTALLMENT" future installment allocation rule
     When Admin creates a fully customized loan with the following data:
       | LoanProduct                                       | submitted on date | with Principal | ANNUAL interest rate % | interest type | interest calculation period | amortization type  | loanTermFrequency | loanTermFrequencyType | repaymentEvery | repaymentFrequencyType | numberOfRepayments | graceOnPrincipalPayment | graceOnInterestPayment | interest free period | Payment strategy            |
-      | PIN4_DOWNPAYMENT_AUTO_ADVANCED_PAYMENT_ALLOCATION | 01 September 2023 | 1000           | 0                      | FLAT          | SAME_AS_REPAYMENT_PERIOD    | EQUAL_INSTALLMENTS | 45                | DAYS                  | 15             | DAYS                   | 3                  | 0                       | 0                      | 0                    | ADVANCED_PAYMENT_ALLOCATION |
+      | LP2_DOWNPAYMENT_AUTO_ADVANCED_PAYMENT_ALLOCATION | 01 September 2023 | 1000           | 0                      | FLAT          | SAME_AS_REPAYMENT_PERIOD    | EQUAL_INSTALLMENTS | 45                | DAYS                  | 15             | DAYS                   | 3                  | 0                       | 0                      | 0                    | ADVANCED_PAYMENT_ALLOCATION |
     And Admin successfully approves the loan on "01 September 2023" with "1000" amount and expected disbursement date on "01 September 2023"
     When Admin successfully disburse the loan on "01 September 2023" with "1000" EUR transaction amount
     When Admin sets the business date to "16 September 2023"
@@ -1019,13 +1019,13 @@ Feature: Credit Balance Refund
       | LIABILITY | 145023       | Suspense/Clearing account |       | 100.0  |
 
   @TestRailId:C2888
-  Scenario: Multi repayment reversal (after maturity) - PIN4_DOWNPAYMENT_AUTO_ADVANCED_PAYMENT_ALLOCATION loan product
+  Scenario: Multi repayment reversal (after maturity) - LP2_DOWNPAYMENT_AUTO_ADVANCED_PAYMENT_ALLOCATION loan product
     When Admin sets the business date to "01 September 2023"
     When Admin creates a client with random data
-    When Admin set "PIN4_DOWNPAYMENT_AUTO_ADVANCED_PAYMENT_ALLOCATION" loan product "DEFAULT" transaction type to "NEXT_INSTALLMENT" future installment allocation rule
+    When Admin set "LP2_DOWNPAYMENT_AUTO_ADVANCED_PAYMENT_ALLOCATION" loan product "DEFAULT" transaction type to "NEXT_INSTALLMENT" future installment allocation rule
     When Admin creates a fully customized loan with the following data:
       | LoanProduct                                       | submitted on date | with Principal | ANNUAL interest rate % | interest type | interest calculation period | amortization type  | loanTermFrequency | loanTermFrequencyType | repaymentEvery | repaymentFrequencyType | numberOfRepayments | graceOnPrincipalPayment | graceOnInterestPayment | interest free period | Payment strategy            |
-      | PIN4_DOWNPAYMENT_AUTO_ADVANCED_PAYMENT_ALLOCATION | 01 September 2023 | 1000           | 0                      | FLAT          | SAME_AS_REPAYMENT_PERIOD    | EQUAL_INSTALLMENTS | 45                | DAYS                  | 15             | DAYS                   | 3                  | 0                       | 0                      | 0                    | ADVANCED_PAYMENT_ALLOCATION |
+      | LP2_DOWNPAYMENT_AUTO_ADVANCED_PAYMENT_ALLOCATION | 01 September 2023 | 1000           | 0                      | FLAT          | SAME_AS_REPAYMENT_PERIOD    | EQUAL_INSTALLMENTS | 45                | DAYS                  | 15             | DAYS                   | 3                  | 0                       | 0                      | 0                    | ADVANCED_PAYMENT_ALLOCATION |
     And Admin successfully approves the loan on "01 September 2023" with "1000" amount and expected disbursement date on "01 September 2023"
     When Admin successfully disburse the loan on "01 September 2023" with "1000" EUR transaction amount
     When Admin sets the business date to "16 September 2023"
@@ -1092,13 +1092,13 @@ Feature: Credit Balance Refund
       | LIABILITY | 145023       | Suspense/Clearing account |       | 100.0  |
 
   @TestRailId:C2889
-  Scenario: Verify that Loan status goes from overpaid to active in case of CBR transaction (after maturity) - PIN4_DOWNPAYMENT_AUTO_ADVANCED_PAYMENT_ALLOCATION loan product
+  Scenario: Verify that Loan status goes from overpaid to active in case of CBR transaction (after maturity) - LP2_DOWNPAYMENT_AUTO_ADVANCED_PAYMENT_ALLOCATION loan product
     When Admin sets the business date to "01 September 2023"
     When Admin creates a client with random data
-    When Admin set "PIN4_DOWNPAYMENT_AUTO_ADVANCED_PAYMENT_ALLOCATION" loan product "DEFAULT" transaction type to "NEXT_INSTALLMENT" future installment allocation rule
+    When Admin set "LP2_DOWNPAYMENT_AUTO_ADVANCED_PAYMENT_ALLOCATION" loan product "DEFAULT" transaction type to "NEXT_INSTALLMENT" future installment allocation rule
     When Admin creates a fully customized loan with the following data:
       | LoanProduct                                       | submitted on date | with Principal | ANNUAL interest rate % | interest type | interest calculation period | amortization type  | loanTermFrequency | loanTermFrequencyType | repaymentEvery | repaymentFrequencyType | numberOfRepayments | graceOnPrincipalPayment | graceOnInterestPayment | interest free period | Payment strategy            |
-      | PIN4_DOWNPAYMENT_AUTO_ADVANCED_PAYMENT_ALLOCATION | 01 September 2023 | 1000           | 0                      | FLAT          | SAME_AS_REPAYMENT_PERIOD    | EQUAL_INSTALLMENTS | 45                | DAYS                  | 15             | DAYS                   | 3                  | 0                       | 0                      | 0                    | ADVANCED_PAYMENT_ALLOCATION |
+      | LP2_DOWNPAYMENT_AUTO_ADVANCED_PAYMENT_ALLOCATION | 01 September 2023 | 1000           | 0                      | FLAT          | SAME_AS_REPAYMENT_PERIOD    | EQUAL_INSTALLMENTS | 45                | DAYS                  | 15             | DAYS                   | 3                  | 0                       | 0                      | 0                    | ADVANCED_PAYMENT_ALLOCATION |
     And Admin successfully approves the loan on "01 September 2023" with "1000" amount and expected disbursement date on "01 September 2023"
     When Admin successfully disburse the loan on "01 September 2023" with "1000" EUR transaction amount
     When Admin sets the business date to "16 September 2023"
@@ -1171,13 +1171,13 @@ Feature: Credit Balance Refund
       | LIABILITY | 145023       | Suspense/Clearing account |       | 100.0  |
 
   @TestRailId:C2890
-  Scenario: Verify that accruals created for charges after CBR post-maturity - PIN4_DOWNPAYMENT_AUTO_ADVANCED_PAYMENT_ALLOCATION loan product
+  Scenario: Verify that accruals created for charges after CBR post-maturity - LP2_DOWNPAYMENT_AUTO_ADVANCED_PAYMENT_ALLOCATION loan product
     When Admin sets the business date to "01 September 2023"
     When Admin creates a client with random data
-    When Admin set "PIN4_DOWNPAYMENT_AUTO_ADVANCED_PAYMENT_ALLOCATION" loan product "DEFAULT" transaction type to "NEXT_INSTALLMENT" future installment allocation rule
+    When Admin set "LP2_DOWNPAYMENT_AUTO_ADVANCED_PAYMENT_ALLOCATION" loan product "DEFAULT" transaction type to "NEXT_INSTALLMENT" future installment allocation rule
     When Admin creates a fully customized loan with the following data:
       | LoanProduct                                       | submitted on date | with Principal | ANNUAL interest rate % | interest type | interest calculation period | amortization type  | loanTermFrequency | loanTermFrequencyType | repaymentEvery | repaymentFrequencyType | numberOfRepayments | graceOnPrincipalPayment | graceOnInterestPayment | interest free period | Payment strategy            |
-      | PIN4_DOWNPAYMENT_AUTO_ADVANCED_PAYMENT_ALLOCATION | 01 September 2023 | 1000           | 0                      | FLAT          | SAME_AS_REPAYMENT_PERIOD    | EQUAL_INSTALLMENTS | 45                | DAYS                  | 15             | DAYS                   | 3                  | 0                       | 0                      | 0                    | ADVANCED_PAYMENT_ALLOCATION |
+      | LP2_DOWNPAYMENT_AUTO_ADVANCED_PAYMENT_ALLOCATION | 01 September 2023 | 1000           | 0                      | FLAT          | SAME_AS_REPAYMENT_PERIOD    | EQUAL_INSTALLMENTS | 45                | DAYS                  | 15             | DAYS                   | 3                  | 0                       | 0                      | 0                    | ADVANCED_PAYMENT_ALLOCATION |
     And Admin successfully approves the loan on "01 September 2023" with "1000" amount and expected disbursement date on "01 September 2023"
     When Admin successfully disburse the loan on "01 September 2023" with "1000" EUR transaction amount
     When Admin sets the business date to "16 September 2023"
@@ -1244,10 +1244,10 @@ Feature: Credit Balance Refund
   Scenario: Verify that CBR transaction date cannot be in the future
     When Admin sets the business date to "01 September 2023"
     When Admin creates a client with random data
-    When Admin set "PIN4_DOWNPAYMENT_AUTO_ADVANCED_PAYMENT_ALLOCATION" loan product "DEFAULT" transaction type to "NEXT_INSTALLMENT" future installment allocation rule
+    When Admin set "LP2_DOWNPAYMENT_AUTO_ADVANCED_PAYMENT_ALLOCATION" loan product "DEFAULT" transaction type to "NEXT_INSTALLMENT" future installment allocation rule
     When Admin creates a fully customized loan with the following data:
       | LoanProduct                                       | submitted on date | with Principal | ANNUAL interest rate % | interest type | interest calculation period | amortization type  | loanTermFrequency | loanTermFrequencyType | repaymentEvery | repaymentFrequencyType | numberOfRepayments | graceOnPrincipalPayment | graceOnInterestPayment | interest free period | Payment strategy            |
-      | PIN4_DOWNPAYMENT_AUTO_ADVANCED_PAYMENT_ALLOCATION | 01 September 2023 | 1000           | 0                      | FLAT          | SAME_AS_REPAYMENT_PERIOD    | EQUAL_INSTALLMENTS | 45                | DAYS                  | 15             | DAYS                   | 3                  | 0                       | 0                      | 0                    | ADVANCED_PAYMENT_ALLOCATION |
+      | LP2_DOWNPAYMENT_AUTO_ADVANCED_PAYMENT_ALLOCATION | 01 September 2023 | 1000           | 0                      | FLAT          | SAME_AS_REPAYMENT_PERIOD    | EQUAL_INSTALLMENTS | 45                | DAYS                  | 15             | DAYS                   | 3                  | 0                       | 0                      | 0                    | ADVANCED_PAYMENT_ALLOCATION |
     And Admin successfully approves the loan on "01 September 2023" with "1000" amount and expected disbursement date on "01 September 2023"
     When Admin successfully disburse the loan on "01 September 2023" with "1000" EUR transaction amount
     When Admin sets the business date to "10 September 2023"
@@ -1262,10 +1262,10 @@ Feature: Credit Balance Refund
   Scenario: Verify that Charge-off and CBR transaction GL entries are correct in case of repayment reversal after CBR and Fraud flagged loan
     When Admin sets the business date to "01 January 2024"
     When Admin creates a client with random data
-    When Admin set "PIN4_DOWNPAYMENT_AUTO_ADVANCED_PAYMENT_ALLOCATION" loan product "DEFAULT" transaction type to "NEXT_INSTALLMENT" future installment allocation rule
+    When Admin set "LP2_DOWNPAYMENT_AUTO_ADVANCED_PAYMENT_ALLOCATION" loan product "DEFAULT" transaction type to "NEXT_INSTALLMENT" future installment allocation rule
     When Admin creates a fully customized loan with the following data:
       | LoanProduct                                       | submitted on date | with Principal | ANNUAL interest rate % | interest type | interest calculation period | amortization type  | loanTermFrequency | loanTermFrequencyType | repaymentEvery | repaymentFrequencyType | numberOfRepayments | graceOnPrincipalPayment | graceOnInterestPayment | interest free period | Payment strategy            |
-      | PIN4_DOWNPAYMENT_AUTO_ADVANCED_PAYMENT_ALLOCATION | 01 January 2024   | 1000           | 0                      | FLAT          | SAME_AS_REPAYMENT_PERIOD    | EQUAL_INSTALLMENTS | 45                | DAYS                  | 15             | DAYS                   | 3                  | 0                       | 0                      | 0                    | ADVANCED_PAYMENT_ALLOCATION |
+      | LP2_DOWNPAYMENT_AUTO_ADVANCED_PAYMENT_ALLOCATION | 01 January 2024   | 1000           | 0                      | FLAT          | SAME_AS_REPAYMENT_PERIOD    | EQUAL_INSTALLMENTS | 45                | DAYS                  | 15             | DAYS                   | 3                  | 0                       | 0                      | 0                    | ADVANCED_PAYMENT_ALLOCATION |
     And Admin successfully approves the loan on "01 January 2024" with "1000" amount and expected disbursement date on "01 January 2024"
     When Admin successfully disburse the loan on "01 January 2024" with "1000" EUR transaction amount
     Then Admin can successfully set Fraud flag to the loan
@@ -1309,10 +1309,10 @@ Feature: Credit Balance Refund
   Scenario: Verify that Charge-off and CBR transaction GL entries are correct in case of repayment reversal after CBR and Non-Fraud loan
     When Admin sets the business date to "01 January 2024"
     When Admin creates a client with random data
-    When Admin set "PIN4_DOWNPAYMENT_AUTO_ADVANCED_PAYMENT_ALLOCATION" loan product "DEFAULT" transaction type to "NEXT_INSTALLMENT" future installment allocation rule
+    When Admin set "LP2_DOWNPAYMENT_AUTO_ADVANCED_PAYMENT_ALLOCATION" loan product "DEFAULT" transaction type to "NEXT_INSTALLMENT" future installment allocation rule
     When Admin creates a fully customized loan with the following data:
       | LoanProduct                                       | submitted on date | with Principal | ANNUAL interest rate % | interest type | interest calculation period | amortization type  | loanTermFrequency | loanTermFrequencyType | repaymentEvery | repaymentFrequencyType | numberOfRepayments | graceOnPrincipalPayment | graceOnInterestPayment | interest free period | Payment strategy            |
-      | PIN4_DOWNPAYMENT_AUTO_ADVANCED_PAYMENT_ALLOCATION | 01 January 2024   | 1000           | 0                      | FLAT          | SAME_AS_REPAYMENT_PERIOD    | EQUAL_INSTALLMENTS | 45                | DAYS                  | 15             | DAYS                   | 3                  | 0                       | 0                      | 0                    | ADVANCED_PAYMENT_ALLOCATION |
+      | LP2_DOWNPAYMENT_AUTO_ADVANCED_PAYMENT_ALLOCATION | 01 January 2024   | 1000           | 0                      | FLAT          | SAME_AS_REPAYMENT_PERIOD    | EQUAL_INSTALLMENTS | 45                | DAYS                  | 15             | DAYS                   | 3                  | 0                       | 0                      | 0                    | ADVANCED_PAYMENT_ALLOCATION |
     And Admin successfully approves the loan on "01 January 2024" with "1000" amount and expected disbursement date on "01 January 2024"
     When Admin successfully disburse the loan on "01 January 2024" with "1000" EUR transaction amount
     And Admin does charge-off the loan on "01 January 2024"
@@ -1355,10 +1355,10 @@ Feature: Credit Balance Refund
   Scenario: Verify that Charge-off and CBR transaction GL entries are correct before and after a repayment reversal taken place after CBR - UC1
     When Admin sets the business date to "01 January 2024"
     When Admin creates a client with random data
-    When Admin set "PIN4_DOWNPAYMENT_AUTO_ADVANCED_PAYMENT_ALLOCATION" loan product "DEFAULT" transaction type to "NEXT_INSTALLMENT" future installment allocation rule
+    When Admin set "LP2_DOWNPAYMENT_AUTO_ADVANCED_PAYMENT_ALLOCATION" loan product "DEFAULT" transaction type to "NEXT_INSTALLMENT" future installment allocation rule
     When Admin creates a fully customized loan with the following data:
       | LoanProduct                                       | submitted on date | with Principal | ANNUAL interest rate % | interest type | interest calculation period | amortization type  | loanTermFrequency | loanTermFrequencyType | repaymentEvery | repaymentFrequencyType | numberOfRepayments | graceOnPrincipalPayment | graceOnInterestPayment | interest free period | Payment strategy            |
-      | PIN4_DOWNPAYMENT_AUTO_ADVANCED_PAYMENT_ALLOCATION | 01 January 2024   | 1000           | 0                      | FLAT          | SAME_AS_REPAYMENT_PERIOD    | EQUAL_INSTALLMENTS | 45                | DAYS                  | 15             | DAYS                   | 3                  | 0                       | 0                      | 0                    | ADVANCED_PAYMENT_ALLOCATION |
+      | LP2_DOWNPAYMENT_AUTO_ADVANCED_PAYMENT_ALLOCATION | 01 January 2024   | 1000           | 0                      | FLAT          | SAME_AS_REPAYMENT_PERIOD    | EQUAL_INSTALLMENTS | 45                | DAYS                  | 15             | DAYS                   | 3                  | 0                       | 0                      | 0                    | ADVANCED_PAYMENT_ALLOCATION |
     And Admin successfully approves the loan on "01 January 2024" with "1000" amount and expected disbursement date on "01 January 2024"
     When Admin successfully disburse the loan on "01 January 2024" with "1000" EUR transaction amount
     When Admin sets the business date to "02 January 2024"
@@ -1429,10 +1429,10 @@ Feature: Credit Balance Refund
   Scenario: Verify that Charge-off and CBR transaction GL entries are correct before and after a repayment reversal taken place after CBR - UC2
     When Admin sets the business date to "01 January 2024"
     When Admin creates a client with random data
-    When Admin set "PIN4_DOWNPAYMENT_AUTO_ADVANCED_PAYMENT_ALLOCATION" loan product "DEFAULT" transaction type to "NEXT_INSTALLMENT" future installment allocation rule
+    When Admin set "LP2_DOWNPAYMENT_AUTO_ADVANCED_PAYMENT_ALLOCATION" loan product "DEFAULT" transaction type to "NEXT_INSTALLMENT" future installment allocation rule
     When Admin creates a fully customized loan with the following data:
       | LoanProduct                                       | submitted on date | with Principal | ANNUAL interest rate % | interest type | interest calculation period | amortization type  | loanTermFrequency | loanTermFrequencyType | repaymentEvery | repaymentFrequencyType | numberOfRepayments | graceOnPrincipalPayment | graceOnInterestPayment | interest free period | Payment strategy            |
-      | PIN4_DOWNPAYMENT_AUTO_ADVANCED_PAYMENT_ALLOCATION | 01 January 2024   | 1000           | 0                      | FLAT          | SAME_AS_REPAYMENT_PERIOD    | EQUAL_INSTALLMENTS | 45                | DAYS                  | 15             | DAYS                   | 3                  | 0                       | 0                      | 0                    | ADVANCED_PAYMENT_ALLOCATION |
+      | LP2_DOWNPAYMENT_AUTO_ADVANCED_PAYMENT_ALLOCATION | 01 January 2024   | 1000           | 0                      | FLAT          | SAME_AS_REPAYMENT_PERIOD    | EQUAL_INSTALLMENTS | 45                | DAYS                  | 15             | DAYS                   | 3                  | 0                       | 0                      | 0                    | ADVANCED_PAYMENT_ALLOCATION |
     And Admin successfully approves the loan on "01 January 2024" with "1000" amount and expected disbursement date on "01 January 2024"
     When Admin successfully disburse the loan on "01 January 2024" with "1000" EUR transaction amount
     And Admin does charge-off the loan on "01 January 2024"
@@ -1500,7 +1500,7 @@ Feature: Credit Balance Refund
     When Admin creates a client with random data
     When Admin creates a fully customized loan with the following data:
       | LoanProduct                                  | submitted on date | with Principal | ANNUAL interest rate % | interest type | interest calculation period | amortization type  | loanTermFrequency | loanTermFrequencyType | repaymentEvery | repaymentFrequencyType | numberOfRepayments | graceOnPrincipalPayment | graceOnInterestPayment | interest free period | Payment strategy            |
-      | PIN4_DOWNPAYMENT_ADVANCED_PAYMENT_ALLOCATION | 25 January 2024   | 212.87         | 0                      | FLAT          | SAME_AS_REPAYMENT_PERIOD    | EQUAL_INSTALLMENTS | 30                | DAYS                  | 30             | DAYS                   | 1                  | 0                       | 0                      | 0                    | ADVANCED_PAYMENT_ALLOCATION |
+      | LP2_DOWNPAYMENT_ADVANCED_PAYMENT_ALLOCATION | 25 January 2024   | 212.87         | 0                      | FLAT          | SAME_AS_REPAYMENT_PERIOD    | EQUAL_INSTALLMENTS | 30                | DAYS                  | 30             | DAYS                   | 1                  | 0                       | 0                      | 0                    | ADVANCED_PAYMENT_ALLOCATION |
     And Admin successfully approves the loan on "25 January 2024" with "212.87" amount and expected disbursement date on "25 January 2024"
     When Admin successfully disburse the loan on "25 January 2024" with "212.87" EUR transaction amount
     When Admin sets the business date to "24 February 2024"
@@ -1538,3 +1538,139 @@ Feature: Credit Balance Refund
       | 01 March 2024    | Credit Balance Refund  | 124.83 | 36.99     | 0.0      | 0.0  | 0.0       | 36.99        | false    |
       | 02 March 2024    | Merchant Issued Refund | 19.99  | 19.99     | 0.0      | 0.0  | 0.0       | 17.0         | false    |
       | 02 March 2024    | Merchant Issued Refund | 19.99  | 17.0      | 0.0      | 0.0  | 0.0       | 0.0          | false    |
+
+  @TestRailId:C3140
+  Scenario: Verify that the journal entries are correct in case of merchant issued refund (chargeoff, backdated transaction, undo repayment, downpayment)
+    When Admin sets the business date to "24 May 2024"
+    When Admin creates a client with random data
+    When Admin creates a fully customized loan with the following data:
+      | LoanProduct                                       | submitted on date | with Principal | ANNUAL interest rate % | interest type | interest calculation period | amortization type  | loanTermFrequency | loanTermFrequencyType | repaymentEvery | repaymentFrequencyType | numberOfRepayments | graceOnPrincipalPayment | graceOnInterestPayment | interest free period | Payment strategy            |
+      | LP2_DOWNPAYMENT_AUTO_ADVANCED_PAYMENT_ALLOCATION | 24 May 2024       | 200            | 0                      | FLAT          | SAME_AS_REPAYMENT_PERIOD    | EQUAL_INSTALLMENTS | 30                | DAYS                  | 30             | DAYS                   | 1                  | 0                       | 0                      | 0                    | ADVANCED_PAYMENT_ALLOCATION |
+    And Admin successfully approves the loan on "24 May 2024" with "200" amount and expected disbursement date on "24 May 2024"
+    When Admin successfully disburse the loan on "24 May 2024" with "200" EUR transaction amount
+    When Admin runs inline COB job for Loan
+    When Admin sets the business date to "25 May 2024"
+    When Customer undo "1"th "Down Payment" transaction made on "24 May 2024"
+    Then Loan Repayment schedule has 2 periods, with the following data for periods:
+      | Nr | Days | Date         | Paid date | Balance of loan | Principal due | Interest | Fees | Penalties | Due   | Paid | In advance | Late | Outstanding |
+      |    |      | 24 May 2024  |           | 200.0           |               |          | 0.0  |           | 0.0   | 0.0  |            |      |             |
+      | 1  | 0    | 24 May 2024  |           | 150.0           | 50.0          | 0.0      | 0.0  | 0.0       | 50.0  | 0.0  | 0.0        | 0.0  | 50.0        |
+      | 2  | 30   | 23 June 2024 |           | 0.0             | 150.0         | 0.0      | 0.0  | 0.0       | 150.0 | 0.0  | 0.0        | 0.0  | 150.0       |
+    Then Loan Transactions tab has the following data:
+      | Transaction date | Transaction Type | Amount | Principal | Interest | Fees | Penalties | Loan Balance | Reverted | Replayed |
+      | 24 May 2024      | Disbursement     | 200.0  | 0.0       | 0.0      | 0.0  | 0.0       | 200.0        | false    | false    |
+      | 24 May 2024      | Down Payment     | 50.0   | 50.0      | 0.0      | 0.0  | 0.0       | 150.0        | true     | false    |
+    Then Loan Repayment schedule has the following data in Total row:
+      | Principal due | Interest | Fees | Penalties | Due   | Paid | In advance | Late | Outstanding |
+      | 200.0         | 0.0      | 0.0  | 0.0       | 200.0 | 0.0  | 0.0        | 0.0  | 200.0       |
+    When Admin runs inline COB job for Loan
+    When Admin sets the business date to "26 May 2024"
+    And Admin does charge-off the loan on "26 May 2024"
+    And Customer makes "AUTOPAY" repayment on "25 May 2024" with 10 EUR transaction amount
+    When Customer makes "MERCHANT_ISSUED_REFUND" transaction with "AUTOPAY" payment type on "26 May 2024" with 200 EUR transaction amount and system-generated Idempotency key
+    Then Loan Repayment schedule has 2 periods, with the following data for periods:
+      | Nr | Days | Date         | Paid date   | Balance of loan | Principal due | Interest | Fees | Penalties | Due   | Paid  | In advance | Late | Outstanding |
+      |    |      | 24 May 2024  |             | 200.0           |               |          | 0.0  |           | 0.0   | 0.0   |            |      |             |
+      | 1  | 0    | 24 May 2024  | 26 May 2024 | 150.0           | 50.0          | 0.0      | 0.0  | 0.0       | 50.0  | 50.0  | 0.0        | 50.0 | 0.0         |
+      | 2  | 30   | 23 June 2024 | 26 May 2024 | 0.0             | 150.0         | 0.0      | 0.0  | 0.0       | 150.0 | 150.0 | 150.0      | 0.0  | 0.0         |
+    Then Loan Repayment schedule has the following data in Total row:
+      | Principal due | Interest | Fees | Penalties | Due   | Paid  | In advance | Late | Outstanding |
+      | 200.0         | 0.0      | 0.0  | 0.0       | 200.0 | 200.0 | 150.0      | 50.0 | 0.0         |
+    Then Loan Transactions tab has the following data:
+      | Transaction date | Transaction Type       | Amount | Principal | Interest | Fees | Penalties | Loan Balance | Reverted | Replayed |
+      | 24 May 2024      | Disbursement           | 200.0  | 0.0       | 0.0      | 0.0  | 0.0       | 200.0        | false    | false    |
+      | 24 May 2024      | Down Payment           | 50.0   | 50.0      | 0.0      | 0.0  | 0.0       | 150.0        | true     | false    |
+      | 25 May 2024      | Repayment              | 10.0   | 10.0      | 0.0      | 0.0  | 0.0       | 190.0        | false    | false    |
+      | 26 May 2024      | Charge-off             | 190.0  | 190.0     | 0.0      | 0.0  | 0.0       | 0.0          | false    | true     |
+      | 26 May 2024      | Merchant Issued Refund | 200.0  | 190.0     | 0.0      | 0.0  | 0.0       | 0.0          | false    | false    |
+    When Admin runs inline COB job for Loan
+    Then Loan status will be "OVERPAID"
+    Then Loan has 0 outstanding amount
+    Then Loan has 10 overpaid amount
+    When Admin sets the business date to "27 May 2024"
+    When Admin makes Credit Balance Refund transaction on "27 May 2024" with 10 EUR transaction amount
+    Then Loan Repayment schedule has 2 periods, with the following data for periods:
+      | Nr | Days | Date         | Paid date   | Balance of loan | Principal due | Interest | Fees | Penalties | Due   | Paid  | In advance | Late | Outstanding |
+      |    |      | 24 May 2024  |             | 200.0           |               |          | 0.0  |           | 0.0   | 0.0   |            |      |             |
+      | 1  | 0    | 24 May 2024  | 26 May 2024 | 150.0           | 50.0          | 0.0      | 0.0  | 0.0       | 50.0  | 50.0  | 0.0        | 50.0 | 0.0         |
+      | 2  | 30   | 23 June 2024 | 26 May 2024 | 0.0             | 150.0         | 0.0      | 0.0  | 0.0       | 150.0 | 150.0 | 150.0      | 0.0  | 0.0         |
+    Then Loan Repayment schedule has the following data in Total row:
+      | Principal due | Interest | Fees | Penalties | Due   | Paid  | In advance | Late | Outstanding |
+      | 200.0         | 0.0      | 0.0  | 0.0       | 200.0 | 200.0 | 150.0      | 50.0 | 0.0         |
+    Then Loan Transactions tab has the following data:
+      | Transaction date | Transaction Type       | Amount | Principal | Interest | Fees | Penalties | Loan Balance | Reverted | Replayed |
+      | 24 May 2024      | Disbursement           | 200.0  | 0.0       | 0.0      | 0.0  | 0.0       | 200.0        | false    | false    |
+      | 24 May 2024      | Down Payment           | 50.0   | 50.0      | 0.0      | 0.0  | 0.0       | 150.0        | true     | false    |
+      | 25 May 2024      | Repayment              | 10.0   | 10.0      | 0.0      | 0.0  | 0.0       | 190.0        | false    | false    |
+      | 26 May 2024      | Charge-off             | 190.0  | 190.0     | 0.0      | 0.0  | 0.0       | 0.0          | false    | true     |
+      | 26 May 2024      | Merchant Issued Refund | 200.0  | 190.0     | 0.0      | 0.0  | 0.0       | 0.0          | false    | false    |
+      | 27 May 2024      | Credit Balance Refund  | 10.0   | 0.0       | 0.0      | 0.0  | 0.0       | 0.0          | false    | false    |
+    When Customer undo "1"th "Repayment" transaction made on "25 May 2024"
+    Then Loan Repayment schedule has 2 periods, with the following data for periods:
+      | Nr | Days | Date         | Paid date   | Balance of loan | Principal due | Interest | Fees | Penalties | Due   | Paid  | In advance | Late | Outstanding |
+      |    |      | 24 May 2024  |             | 200.0           |               |          | 0.0  |           | 0.0   | 0.0   |            |      |             |
+      | 1  | 0    | 24 May 2024  | 26 May 2024 | 150.0           | 50.0          | 0.0      | 0.0  | 0.0       | 50.0  | 50.0  | 0.0        | 50.0 | 0.0         |
+      | 2  | 30   | 23 June 2024 |             | 0.0             | 160.0         | 0.0      | 0.0  | 0.0       | 160.0 | 150.0 | 150.0      | 0.0  | 10.0        |
+    Then Loan Repayment schedule has the following data in Total row:
+      | Principal due | Interest | Fees | Penalties | Due   | Paid  | In advance | Late | Outstanding |
+      | 210.0         | 0.0      | 0.0  | 0.0       | 210.0 | 200.0 | 150.0      | 50.0 | 10.0        |
+    Then Loan Transactions tab has the following data:
+      | Transaction date | Transaction Type       | Amount | Principal | Interest | Fees | Penalties | Loan Balance | Reverted | Replayed |
+      | 24 May 2024      | Disbursement           | 200.0  | 0.0       | 0.0      | 0.0  | 0.0       | 200.0        | false    | false    |
+      | 24 May 2024      | Down Payment           | 50.0   | 50.0      | 0.0      | 0.0  | 0.0       | 150.0        | true     | false    |
+      | 25 May 2024      | Repayment              | 10.0   | 10.0      | 0.0      | 0.0  | 0.0       | 190.0        | true     | false    |
+      | 26 May 2024      | Charge-off             | 200.0  | 200.0     | 0.0      | 0.0  | 0.0       | 0.0          | false    | true     |
+      | 26 May 2024      | Merchant Issued Refund | 200.0  | 200.0     | 0.0      | 0.0  | 0.0       | 0.0          | false    | true     |
+      | 27 May 2024      | Credit Balance Refund  | 10.0   | 10.0      | 0.0      | 0.0  | 0.0       | 10.0         | false    | true     |
+    Then Loan Transactions tab has a "DISBURSEMENT" transaction with date "24 May 2024" which has the following Journal entries:
+      | Type      | Account code | Account name              | Debit | Credit |
+      | ASSET     | 112601       | Loans Receivable          | 200.0 |        |
+      | LIABILITY | 145023       | Suspense/Clearing account |       | 200.0  |
+    Then Loan Transactions tab has a "DOWN_PAYMENT" transaction with date "24 May 2024" which has the following Journal entries:
+      | Type      | Account code | Account name              | Debit | Credit |
+      | ASSET     | 112601       | Loans Receivable          |       | 50.0   |
+      | LIABILITY | 145023       | Suspense/Clearing account | 50.0  |        |
+      | ASSET     | 112601       | Loans Receivable          | 50.0  |        |
+      | LIABILITY | 145023       | Suspense/Clearing account |       | 50.0   |
+    Then Loan Transactions tab has a "REPAYMENT" transaction with date "25 May 2024" which has the following Journal entries:
+      | Type      | Account code | Account name              | Debit | Credit |
+      | ASSET     | 112601       | Loans Receivable          |       | 10.0   |
+      | LIABILITY | 145023       | Suspense/Clearing account | 10.0  |        |
+      | ASSET     | 112601       | Loans Receivable          | 10.0  |        |
+      | LIABILITY | 145023       | Suspense/Clearing account |       | 10.0   |
+    Then Loan Transactions tab has a "CHARGE_OFF" transaction with date "26 May 2024" which has the following Journal entries:
+      | Type    | Account code | Account name         | Debit | Credit |
+      | ASSET   | 112601       | Loans Receivable     |       | 200.0  |
+      | EXPENSE | 744007       | Credit Loss/Bad Debt | 200.0 |        |
+    Then Loan Transactions tab has a "MERCHANT_ISSUED_REFUND" transaction with date "26 May 2024" which has the following Journal entries:
+      | Type      | Account code | Account name              | Debit | Credit |
+      | EXPENSE   | 744007       | Credit Loss/Bad Debt      |       | 200.0  |
+      | LIABILITY | 145023       | Suspense/Clearing account | 200.0 |        |
+    Then Loan Transactions tab has a "CREDIT_BALANCE_REFUND" transaction with date "27 May 2024" which has the following Journal entries:
+      | Type      | Account code | Account name              | Debit | Credit |
+      | EXPENSE   | 744007       | Credit Loss/Bad Debt      | 10.0  |        |
+      | LIABILITY | 145023       | Suspense/Clearing account |       | 10.0   |
+
+  @TestRailId:C3203
+  Scenario: Verify that loan status is correct when CBR is reversed on an overpaid loan
+    When Admin sets the business date to "01 July 2024"
+    When Admin creates a client with random data
+    When Admin creates a fully customized loan with the following data:
+      | LoanProduct                                       | submitted on date | with Principal | ANNUAL interest rate % | interest type | interest calculation period | amortization type  | loanTermFrequency | loanTermFrequencyType | repaymentEvery | repaymentFrequencyType | numberOfRepayments | graceOnPrincipalPayment | graceOnInterestPayment | interest free period | Payment strategy            |
+      | LP2_DOWNPAYMENT_AUTO_ADVANCED_PAYMENT_ALLOCATION | 01 July 2024       | 1000            | 0                      | FLAT          | SAME_AS_REPAYMENT_PERIOD    | EQUAL_INSTALLMENTS | 30                | DAYS                  | 30             | DAYS                   | 1                  | 0                       | 0                      | 0                    | ADVANCED_PAYMENT_ALLOCATION |
+    And Admin successfully approves the loan on "01 July 2024" with "1000" amount and expected disbursement date on "01 July 2024"
+    When Admin successfully disburse the loan on "01 July 2024" with "1000" EUR transaction amount
+    When Admin sets the business date to "10 July 2024"
+    And Customer makes "AUTOPAY" repayment on "10 July 2024" with 1000 EUR transaction amount
+    Then Loan status will be "OVERPAID"
+    Then Loan has 0 outstanding amount
+    Then Loan has 250 overpaid amount
+    When Admin sets the business date to "11 July 2024"
+    When Admin makes Credit Balance Refund transaction on "11 July 2024" with 250 EUR transaction amount
+    Then Loan status will be "CLOSED_OBLIGATIONS_MET"
+    Then Loan has 0 outstanding amount
+    When Admin sets the business date to "12 July 2024"
+    When Customer undo "1"th transaction made on "11 July 2024"
+    Then Loan status will be "OVERPAID"
+    Then Loan has 0 outstanding amount
+    Then Loan has 250 overpaid amount

@@ -134,7 +134,7 @@ public class SynchronousCommandProcessingService implements CommandProcessingSer
             commandSource.setResultStatusCode(statusCode);
             commandSource.setResult(errorInfo.getMessage());
             if (statusCode != SC_OK) {
-                commandSource.setStatus(ERROR);
+                commandSource.setStatus(ERROR.getValue());
             }
             if (!isEnclosingTransaction) { // TODO: temporary solution
                 commandSource = commandSourceService.saveResultNewTransaction(commandSource);
@@ -147,8 +147,8 @@ public class SynchronousCommandProcessingService implements CommandProcessingSer
 
         commandSource.setResultStatusCode(SC_OK);
         commandSource.updateForAudit(result);
-        commandSource.setResult(toApiJsonSerializer.serializeResult(result));
-        commandSource.setStatus(PROCESSED);
+        commandSource.setResult(toApiResultJsonSerializer.serializeResult(result));
+        commandSource.setStatus(PROCESSED.getValue());
         commandSource = commandSourceService.saveResultSameTransaction(commandSource);
         storeCommandIdInContext(commandSource); // Store command id as a request attribute
 
@@ -249,6 +249,16 @@ public class SynchronousCommandProcessingService implements CommandProcessingSer
             } else {
                 throw new UnsupportedCommandException(wrapper.commandName());
             }
+        } else if (wrapper.isInterestPauseResource()) {
+            if (wrapper.isInterestPauseCreateResource()) {
+                handler = applicationContext.getBean("createInterestPauseCommandHandler", NewCommandSourceHandler.class);
+            } else if (wrapper.isInterestPauseUpdateResource()) {
+                handler = applicationContext.getBean("updateInterestPauseCommandHandler", NewCommandSourceHandler.class);
+            } else if (wrapper.isInterestPauseDeleteResource()) {
+                handler = applicationContext.getBean("deleteInterestPauseCommandHandler", NewCommandSourceHandler.class);
+            } else {
+                throw new UnsupportedCommandException(wrapper.commandName());
+            }
         } else {
             handler = commandHandlerProvider.getHandler(wrapper.entityName(), wrapper.actionName());
         }
@@ -318,7 +328,7 @@ public class SynchronousCommandProcessingService implements CommandProcessingSer
 
             reqmap.put("timestamp", Instant.now().toString());
 
-            final String serializedResult = toApiResultJsonSerializer.serialize(reqmap);
+            final String serializedResult = toApiJsonSerializer.serialize(reqmap);
 
             final HookEvent applicationEvent = new HookEvent(hookEventSource, serializedResult, appUser,
                     ThreadLocalContextUtil.getContext());

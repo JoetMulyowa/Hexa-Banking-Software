@@ -61,16 +61,16 @@ Feature: LoanAccrualTransaction
     And Customer makes "AUTOPAY" repayment on "03 January 2023" with 250 EUR transaction amount
     When Admin adds "LOAN_SNOOZE_FEE" due date charge with "04 January 2023" due date and 10 EUR transaction amount
     When Admin sets the business date to "04 January 2023"
-    And Admin runs COB job
+    And Admin runs inline COB job for Loan
     When Admin sets the business date to "05 January 2023"
     And Customer makes "AUTOPAY" repayment on "05 January 2023" with 510 EUR transaction amount
     Then Loan has 0 outstanding amount
-    And Admin makes "REPAYMENT_ADJUSTMENT_CHARGEBACK" chargeback with 250 EUR transaction amount for Payment nr. 2
-    Then Loan has 250 outstanding amount
+    Then LoanAccrualTransactionCreatedBusinessEvent is raised on "05 January 2023"
     Then Loan Transactions tab has a transaction with date: "05 January 2023", and with the following data:
       | Transaction Type | Amount | Principal | Interest | Fees | Penalties | Loan Balance |
       | Accrual          | 10.0   | 0.0       | 0.0      | 10.0 | 0.0       | 0.0          |
-    Then LoanAccrualTransactionCreatedBusinessEvent is raised on "05 January 2023"
+    And Admin makes "REPAYMENT_ADJUSTMENT_CHARGEBACK" chargeback with 250 EUR transaction amount for Payment nr. 2
+    Then Loan has 250 outstanding amount
 
   @TestRailId:C2651
   Scenario: Verify that after periodic accrual transaction job accrual event is raised when loan has a fee-charge added with waive charge and undo waive charge
@@ -97,7 +97,7 @@ Feature: LoanAccrualTransaction
     And Admin runs the Add Periodic Accrual Transactions job
     Then Loan Transactions tab has a transaction with date: "05 April 2023", and with the following data:
       | Transaction Type | Amount | Principal | Interest | Fees | Penalties | Loan Balance |
-      | Accrual          | 10.0   | 0.0       | 0.0      | 0.0 | 10.0       | 0.0          |
+      | Accrual          | 10.0   | 0.0       | 0.0      | 0.0  | 10.0      | 0.0          |
     Then LoanAccrualTransactionCreatedBusinessEvent is raised on "05 April 2023"
 
   @TestRailId:C2652
@@ -123,7 +123,7 @@ Feature: LoanAccrualTransaction
     When Admin creates a client with random data
     When Admin creates a fully customized loan with the following data:
       | LoanProduct                                                           | submitted on date | with Principal | ANNUAL interest rate % | interest type     | interest calculation period | amortization type  | loanTermFrequency | loanTermFrequencyType | repaymentEvery | repaymentFrequencyType | numberOfRepayments | graceOnPrincipalPayment | graceOnInterestPayment | interest free period | Payment strategy                        |
-      | PIN30_INTEREST_DECLINING_BALANCE_DAILY_RECALCULATION_COMPOUNDING_NONE | 01 January 2023   | 5000           | 12                     | DECLINING_BALANCE | DAILY                       | EQUAL_INSTALLMENTS | 6                 | MONTHS                | 1              | MONTHS                 | 6                  | 0                       | 0                      | 0                    | PENALTIES_FEES_INTEREST_PRINCIPAL_ORDER |
+      | LP1_INTEREST_DECLINING_BALANCE_DAILY_RECALCULATION_COMPOUNDING_NONE | 01 January 2023   | 5000           | 12                     | DECLINING_BALANCE | DAILY                       | EQUAL_INSTALLMENTS | 6                 | MONTHS                | 1              | MONTHS                 | 6                  | 0                       | 0                      | 0                    | PENALTIES_FEES_INTEREST_PRINCIPAL_ORDER |
     And Admin successfully approves the loan on "01 January 2023" with "5000" amount and expected disbursement date on "01 January 2023"
     When Admin successfully disburse the loan on "01 January 2023" with "5000" EUR transaction amount
     When Admin sets the business date to "02 January 2023"
@@ -139,7 +139,7 @@ Feature: LoanAccrualTransaction
     When Admin creates a client with random data
     When Admin creates a fully customized loan with the following data:
       | LoanProduct                                                           | submitted on date | with Principal | ANNUAL interest rate % | interest type     | interest calculation period | amortization type  | loanTermFrequency | loanTermFrequencyType | repaymentEvery | repaymentFrequencyType | numberOfRepayments | graceOnPrincipalPayment | graceOnInterestPayment | interest free period | Payment strategy                        |
-      | PIN30_INTEREST_DECLINING_BALANCE_DAILY_RECALCULATION_COMPOUNDING_NONE | 01 January 2023   | 1000           | 12                     | DECLINING_BALANCE | DAILY                       | EQUAL_INSTALLMENTS | 1                 | MONTHS                | 1              | MONTHS                 | 1                  | 0                       | 0                      | 0                    | PENALTIES_FEES_INTEREST_PRINCIPAL_ORDER |
+      | LP1_INTEREST_DECLINING_BALANCE_DAILY_RECALCULATION_COMPOUNDING_NONE | 01 January 2023   | 1000           | 12                     | DECLINING_BALANCE | DAILY                       | EQUAL_INSTALLMENTS | 1                 | MONTHS                | 1              | MONTHS                 | 1                  | 0                       | 0                      | 0                    | PENALTIES_FEES_INTEREST_PRINCIPAL_ORDER |
     And Admin successfully approves the loan on "01 January 2023" with "1000" amount and expected disbursement date on "01 January 2023"
     When Admin successfully disburse the loan on "01 January 2023" with "1000" EUR transaction amount
     When Admin sets the business date to "02 January 2023"
@@ -307,7 +307,7 @@ Feature: LoanAccrualTransaction
       | 07 July 2023     | Repayment        | 4061.0 | 4060.0    | 0.0      | 0.0  | 0.0       | 0.0          |
       | 07 July 2023     | Accrual          | 50.0   | 0.0       | 0.0      | 50.0 | 0.0       | 0.0          |
 
-  @TestRailId:C2707 @Skip
+  @TestRailId:C2707
   Scenario: Verify that the accrual transaction is not reversed when multi disbursement happens
     When Admin sets the business date to "26 April 2023"
     When Admin creates a client with random data
@@ -322,7 +322,7 @@ Feature: LoanAccrualTransaction
     And  Admin runs COB job
     And Admin successfully disburse the loan on "28 April 2023" with "20" EUR transaction amount
     When Admin sets the business date to "29 April 2023"
-    And Admin runs COB job
+     And Admin runs inline COB job for Loan
     Then Loan Repayment schedule has 1 periods, with the following data for periods:
       | Nr | Days | Date          | Paid date | Balance of loan | Principal due | Interest | Fees | Penalties | Due    | Paid | In advance | Late | Outstanding |
       |    |      | 26 April 2023 |           | 1000.0          |               |          | 0.0  |           | 0.0    | 0.0  |            |      |             |
@@ -339,7 +339,7 @@ Feature: LoanAccrualTransaction
       | 27 April 2023    | Accrual          | 10.0   | 0.0       | 0.0      | 10.0 | 0.0       | 0.0          |
       | 28 April 2023    | Disbursement     | 20.0   | 0.0       | 0.0      | 0.0  | 0.0       | 1050.0       |
 
-  @TestRailId:C2708 @Skip
+  @TestRailId:C2708
   Scenario: Verify that the accrual is correct when it is on the installment start date
     When Admin sets the business date to "1 May 2023"
     When Admin creates a client with random data
@@ -349,7 +349,7 @@ Feature: LoanAccrualTransaction
     Then Loan has 1000 outstanding amount
     When Admin adds "LOAN_SNOOZE_FEE" due date charge with "1 May 2023" due date and 10 EUR transaction amount
     When Admin sets the business date to "2 May 2023"
-    And Admin runs COB job
+    And Admin runs inline COB job for Loan
     When Admin sets the business date to "8 May 2023"
     And Admin successfully disburse the loan on "8 May 2023" with "20" EUR transaction amount
     Then Loan Repayment schedule has 1 periods, with the following data for periods:
@@ -374,11 +374,11 @@ Feature: LoanAccrualTransaction
     And Admin successfully approves the loan on "1 May 2023" with "1000" amount and expected disbursement date on "1 May 2023"
     When Admin adds "LOAN_DISBURSEMENT_PERCENTAGE_FEE" charge with 1 % of transaction amount
     And Admin successfully disburse the loan on "1 May 2023" with "1000" EUR transaction amount
+    When Admin runs inline COB job for Loan
     Then Loan Transactions tab has the following data:
       | Transaction date | Transaction Type                    | Amount | Principal | Interest | Fees | Penalties | Loan Balance |
       | 01 May 2023      | Disbursement                        | 1000.0 | 0.0       | 0.0      | 0.0  | 0.0       | 1000.0       |
       | 01 May 2023      | Repayment (at time of disbursement) | 10.0   | 0.0       | 0.0      | 10.0 | 0.0       | 1000.0       |
-      | 01 May 2023      | Accrual                             | 10.0   | 0.0       | 0.0      | 10.0 | 0.0       | 0.0          |
 
   @TestRailId:C2710 @Specific
   Scenario: Verify global config charge-accrual-date function: single installment loan, charge-accrual-date = submitted-date, multiple charges with different submitted date
@@ -448,7 +448,7 @@ Feature: LoanAccrualTransaction
     When Admin creates a client with random data
     When Admin creates a fully customized loan with the following data:
       | LoanProduct | submitted on date | with Principal | ANNUAL interest rate % | interest type | interest calculation period | amortization type  | loanTermFrequency | loanTermFrequencyType | repaymentEvery | repaymentFrequencyType | numberOfRepayments | graceOnPrincipalPayment | graceOnInterestPayment | interest free period | Payment strategy                        |
-      | PIN30       | 1 February 2023   | 3000           | 0                      | FLAT          | SAME_AS_REPAYMENT_PERIOD    | EQUAL_INSTALLMENTS | 3                 | MONTHS                | 1              | MONTHS                 | 3                  | 0                       | 0                      | 0                    | PENALTIES_FEES_INTEREST_PRINCIPAL_ORDER |
+      | LP1       | 1 February 2023   | 3000           | 0                      | FLAT          | SAME_AS_REPAYMENT_PERIOD    | EQUAL_INSTALLMENTS | 3                 | MONTHS                | 1              | MONTHS                 | 3                  | 0                       | 0                      | 0                    | PENALTIES_FEES_INTEREST_PRINCIPAL_ORDER |
     And Admin successfully approves the loan on "01 February 2023" with "3000" amount and expected disbursement date on "1 February 2023"
     When Admin successfully disburse the loan on "01 February 2023" with "3000" EUR transaction amount
     When Admin adds "LOAN_SNOOZE_FEE" due date charge with "06 February 2023" due date and 10 EUR transaction amount
@@ -481,7 +481,7 @@ Feature: LoanAccrualTransaction
     When Admin creates a client with random data
     When Admin creates a fully customized loan with the following data:
       | LoanProduct | submitted on date | with Principal | ANNUAL interest rate % | interest type | interest calculation period | amortization type  | loanTermFrequency | loanTermFrequencyType | repaymentEvery | repaymentFrequencyType | numberOfRepayments | graceOnPrincipalPayment | graceOnInterestPayment | interest free period | Payment strategy                        |
-      | PIN30       | 1 February 2023   | 3000           | 0                      | FLAT          | SAME_AS_REPAYMENT_PERIOD    | EQUAL_INSTALLMENTS | 3                 | MONTHS                | 1              | MONTHS                 | 3                  | 0                       | 0                      | 0                    | PENALTIES_FEES_INTEREST_PRINCIPAL_ORDER |
+      | LP1       | 1 February 2023   | 3000           | 0                      | FLAT          | SAME_AS_REPAYMENT_PERIOD    | EQUAL_INSTALLMENTS | 3                 | MONTHS                | 1              | MONTHS                 | 3                  | 0                       | 0                      | 0                    | PENALTIES_FEES_INTEREST_PRINCIPAL_ORDER |
     And Admin successfully approves the loan on "01 February 2023" with "3000" amount and expected disbursement date on "1 February 2023"
     When Admin successfully disburse the loan on "01 February 2023" with "3000" EUR transaction amount
     When Admin adds "LOAN_SNOOZE_FEE" due date charge with "06 February 2023" due date and 10 EUR transaction amount
@@ -517,7 +517,7 @@ Feature: LoanAccrualTransaction
     When Admin creates a client with random data
     When Admin creates a fully customized loan with the following data:
       | LoanProduct | submitted on date | with Principal | ANNUAL interest rate % | interest type | interest calculation period | amortization type  | loanTermFrequency | loanTermFrequencyType | repaymentEvery | repaymentFrequencyType | numberOfRepayments | graceOnPrincipalPayment | graceOnInterestPayment | interest free period | Payment strategy                        |
-      | PIN30       | 1 February 2023   | 3000           | 0                      | FLAT          | SAME_AS_REPAYMENT_PERIOD    | EQUAL_INSTALLMENTS | 3                 | MONTHS                | 1              | MONTHS                 | 3                  | 0                       | 0                      | 0                    | PENALTIES_FEES_INTEREST_PRINCIPAL_ORDER |
+      | LP1       | 1 February 2023   | 3000           | 0                      | FLAT          | SAME_AS_REPAYMENT_PERIOD    | EQUAL_INSTALLMENTS | 3                 | MONTHS                | 1              | MONTHS                 | 3                  | 0                       | 0                      | 0                    | PENALTIES_FEES_INTEREST_PRINCIPAL_ORDER |
     And Admin successfully approves the loan on "01 February 2023" with "3000" amount and expected disbursement date on "1 February 2023"
     When Admin successfully disburse the loan on "01 February 2023" with "3000" EUR transaction amount
     When Admin adds "LOAN_SNOOZE_FEE" due date charge with "06 February 2023" due date and 10 EUR transaction amount
@@ -551,7 +551,7 @@ Feature: LoanAccrualTransaction
     When Admin creates a client with random data
     When Admin creates a fully customized loan with the following data:
       | LoanProduct | submitted on date | with Principal | ANNUAL interest rate % | interest type | interest calculation period | amortization type  | loanTermFrequency | loanTermFrequencyType | repaymentEvery | repaymentFrequencyType | numberOfRepayments | graceOnPrincipalPayment | graceOnInterestPayment | interest free period | Payment strategy                        |
-      | PIN30       | 1 February 2023   | 3000           | 0                      | FLAT          | SAME_AS_REPAYMENT_PERIOD    | EQUAL_INSTALLMENTS | 3                 | MONTHS                | 1              | MONTHS                 | 3                  | 0                       | 0                      | 0                    | PENALTIES_FEES_INTEREST_PRINCIPAL_ORDER |
+      | LP1       | 1 February 2023   | 3000           | 0                      | FLAT          | SAME_AS_REPAYMENT_PERIOD    | EQUAL_INSTALLMENTS | 3                 | MONTHS                | 1              | MONTHS                 | 3                  | 0                       | 0                      | 0                    | PENALTIES_FEES_INTEREST_PRINCIPAL_ORDER |
     And Admin successfully approves the loan on "01 February 2023" with "3000" amount and expected disbursement date on "1 February 2023"
     When Admin successfully disburse the loan on "01 February 2023" with "3000" EUR transaction amount
     When Admin adds "LOAN_SNOOZE_FEE" due date charge with "06 February 2023" due date and 10 EUR transaction amount
@@ -693,7 +693,7 @@ Feature: LoanAccrualTransaction
     When Admin creates a client with random data
     When Admin creates a fully customized loan with the following data:
       | LoanProduct | submitted on date | with Principal | ANNUAL interest rate % | interest type | interest calculation period | amortization type  | loanTermFrequency | loanTermFrequencyType | repaymentEvery | repaymentFrequencyType | numberOfRepayments | graceOnPrincipalPayment | graceOnInterestPayment | interest free period | Payment strategy                        |
-      | PIN30       | 1 February 2023   | 3000           | 0                      | FLAT          | SAME_AS_REPAYMENT_PERIOD    | EQUAL_INSTALLMENTS | 3                 | MONTHS                | 1              | MONTHS                 | 3                  | 0                       | 0                      | 0                    | PENALTIES_FEES_INTEREST_PRINCIPAL_ORDER |
+      | LP1       | 1 February 2023   | 3000           | 0                      | FLAT          | SAME_AS_REPAYMENT_PERIOD    | EQUAL_INSTALLMENTS | 3                 | MONTHS                | 1              | MONTHS                 | 3                  | 0                       | 0                      | 0                    | PENALTIES_FEES_INTEREST_PRINCIPAL_ORDER |
     And Admin successfully approves the loan on "01 February 2023" with "3000" amount and expected disbursement date on "1 February 2023"
     When Admin successfully disburse the loan on "01 February 2023" with "2000" EUR transaction amount
     When Admin adds "LOAN_SNOOZE_FEE" due date charge with "06 March 2023" due date and 10 EUR transaction amount
@@ -729,7 +729,7 @@ Feature: LoanAccrualTransaction
     When Admin creates a client with random data
     When Admin creates a fully customized loan with the following data:
       | LoanProduct | submitted on date | with Principal | ANNUAL interest rate % | interest type | interest calculation period | amortization type  | loanTermFrequency | loanTermFrequencyType | repaymentEvery | repaymentFrequencyType | numberOfRepayments | graceOnPrincipalPayment | graceOnInterestPayment | interest free period | Payment strategy                        |
-      | PIN30       | 1 February 2023   | 3000           | 0                      | FLAT          | SAME_AS_REPAYMENT_PERIOD    | EQUAL_INSTALLMENTS | 3                 | MONTHS                | 1              | MONTHS                 | 3                  | 0                       | 0                      | 0                    | PENALTIES_FEES_INTEREST_PRINCIPAL_ORDER |
+      | LP1       | 1 February 2023   | 3000           | 0                      | FLAT          | SAME_AS_REPAYMENT_PERIOD    | EQUAL_INSTALLMENTS | 3                 | MONTHS                | 1              | MONTHS                 | 3                  | 0                       | 0                      | 0                    | PENALTIES_FEES_INTEREST_PRINCIPAL_ORDER |
     And Admin successfully approves the loan on "01 February 2023" with "3000" amount and expected disbursement date on "1 February 2023"
     When Admin successfully disburse the loan on "01 February 2023" with "3000" EUR transaction amount
     When Admin adds "LOAN_SNOOZE_FEE" due date charge with "06 March 2023" due date and 10 EUR transaction amount
@@ -770,7 +770,7 @@ Feature: LoanAccrualTransaction
     When Admin creates a client with random data
     When Admin creates a fully customized loan with the following data:
       | LoanProduct | submitted on date | with Principal | ANNUAL interest rate % | interest type | interest calculation period | amortization type  | loanTermFrequency | loanTermFrequencyType | repaymentEvery | repaymentFrequencyType | numberOfRepayments | graceOnPrincipalPayment | graceOnInterestPayment | interest free period | Payment strategy                        |
-      | PIN30       | 1 February 2023   | 3000           | 0                      | FLAT          | SAME_AS_REPAYMENT_PERIOD    | EQUAL_INSTALLMENTS | 3                 | MONTHS                | 1              | MONTHS                 | 3                  | 0                       | 0                      | 0                    | PENALTIES_FEES_INTEREST_PRINCIPAL_ORDER |
+      | LP1       | 1 February 2023   | 3000           | 0                      | FLAT          | SAME_AS_REPAYMENT_PERIOD    | EQUAL_INSTALLMENTS | 3                 | MONTHS                | 1              | MONTHS                 | 3                  | 0                       | 0                      | 0                    | PENALTIES_FEES_INTEREST_PRINCIPAL_ORDER |
     And Admin successfully approves the loan on "01 February 2023" with "3000" amount and expected disbursement date on "1 February 2023"
     When Admin successfully disburse the loan on "01 February 2023" with "3000" EUR transaction amount
     When Admin adds "LOAN_SNOOZE_FEE" due date charge with "06 March 2023" due date and 10 EUR transaction amount
@@ -785,7 +785,7 @@ Feature: LoanAccrualTransaction
     When Admin sets the business date to "06 February 2023"
     When Admin runs inline COB job for Loan
     Then Loan Charges tab has the following data:
-      | Name       | isPenalty | Payment due at     | Due as of        | Calculation type | Due  | Paid | Waived | Outstanding |
+      | Name       | isPenalty | Payment due at     | Due as of     | Calculation type | Due  | Paid | Waived | Outstanding |
       | Snooze fee | false     | Specified due date | 06 March 2023 | Flat             | 10.0 | 0.0  | 0.0    | 10.0        |
     Then Loan Transactions tab has the following data:
       | Transaction date | Transaction Type   | Amount | Principal | Interest | Fees | Penalties | Loan Balance |
@@ -812,7 +812,7 @@ Feature: LoanAccrualTransaction
     When Admin creates a client with random data
     When Admin creates a fully customized loan with the following data:
       | LoanProduct | submitted on date | with Principal | ANNUAL interest rate % | interest type | interest calculation period | amortization type  | loanTermFrequency | loanTermFrequencyType | repaymentEvery | repaymentFrequencyType | numberOfRepayments | graceOnPrincipalPayment | graceOnInterestPayment | interest free period | Payment strategy                        |
-      | PIN30       | 19 May 2023       | 1000           | 0                      | FLAT          | SAME_AS_REPAYMENT_PERIOD    | EQUAL_INSTALLMENTS | 30                | DAYS                  | 30             | DAYS                   | 1                  | 0                       | 0                      | 0                    | PENALTIES_FEES_INTEREST_PRINCIPAL_ORDER |
+      | LP1       | 19 May 2023       | 1000           | 0                      | FLAT          | SAME_AS_REPAYMENT_PERIOD    | EQUAL_INSTALLMENTS | 30                | DAYS                  | 30             | DAYS                   | 1                  | 0                       | 0                      | 0                    | PENALTIES_FEES_INTEREST_PRINCIPAL_ORDER |
     And Admin successfully approves the loan on "19 May 2023" with "1000" amount and expected disbursement date on "19 May 2023"
     When Admin successfully disburse the loan on "19 May 2023" with "1000" EUR transaction amount
     When Admin sets the business date to "12 June 2023"
@@ -832,13 +832,117 @@ Feature: LoanAccrualTransaction
     When Admin runs inline COB job for Loan
     Then Loan Transactions tab has a transaction with date: "19 July 2023", and with the following data:
       | Transaction Type | Amount | Principal | Interest | Fees | Penalties | Loan Balance |
-      | Accrual          | 10.0   | 0.0       | 0.0      | 0.0 | 10.0       | 0.0          |
+      | Accrual          | 10.0   | 0.0       | 0.0      | 0.0  | 10.0      | 0.0          |
     Then Loan Repayment schedule has 2 periods, with the following data for periods:
-      | Nr | Days | Date             | Paid date | Balance of loan | Principal due | Interest | Fees | Penalties | Due    | Paid | In advance | Late | Outstanding |
-      |    |      | 19 May 2023      |           | 1000.0          |               |          | 0.0  |           | 0.0    | 0.0  |            |      |             |
-      | 1  | 60   | 18 July 2023     |           | 0.0             | 1000.0        | 0.0      | 10.0 | 0.0       | 1010.0 | 0.0  | 0.0        | 0.0  | 1010.0      |
-      | 2  | 1    | 19 July 2023     |           | 0.0             | 0.0           | 0.0      | 0.0  | 10.0      | 10.0   | 0.0  | 0.0        | 0.0  | 10.0        |
+      | Nr | Days | Date         | Paid date | Balance of loan | Principal due | Interest | Fees | Penalties | Due    | Paid | In advance | Late | Outstanding |
+      |    |      | 19 May 2023  |           | 1000.0          |               |          | 0.0  |           | 0.0    | 0.0  |            |      |             |
+      | 1  | 60   | 18 July 2023 |           | 0.0             | 1000.0        | 0.0      | 10.0 | 0.0       | 1010.0 | 0.0  | 0.0        | 0.0  | 1010.0      |
+      | 2  | 1    | 19 July 2023 |           | 0.0             | 0.0           | 0.0      | 0.0  | 10.0      | 10.0   | 0.0  | 0.0        | 0.0  | 10.0        |
     Then Loan Repayment schedule has the following data in Total row:
       | Principal due | Interest | Fees | Penalties | Due  | Paid | In advance | Late | Outstanding |
       | 1000          | 0        | 10   | 10        | 1020 | 0    | 0          | 0    | 1020        |
+    When Global config "charge-accrual-date" value set to "due-date"
+
+  @TestRailId:C3128
+  Scenario: Verify that the final accrual calculation is correct when multiple Charges are added and waived
+    When Admin sets the business date to "17 April 2024"
+    When Admin creates a client with random data
+    When Admin creates a fully customized loan with the following data:
+      | LoanProduct                                                         | submitted on date | with Principal | ANNUAL interest rate % | interest type | interest calculation period | amortization type  | loanTermFrequency | loanTermFrequencyType | repaymentEvery | repaymentFrequencyType | numberOfRepayments | graceOnPrincipalPayment | graceOnInterestPayment | interest free period | Payment strategy            |
+      | LP2_DOWNPAYMENT_ADV_PMT_ALLOC_PROGRESSIVE_LOAN_SCHEDULE_HORIZONTAL | 17 April 2024     | 750            | 0                      | FLAT          | SAME_AS_REPAYMENT_PERIOD    | EQUAL_INSTALLMENTS | 45                | DAYS                  | 15             | DAYS                   | 3                  | 0                       | 0                      | 0                    | ADVANCED_PAYMENT_ALLOCATION |
+    And Admin successfully approves the loan on "17 April 2024" with "750" amount and expected disbursement date on "17 April 2024"
+    When Admin successfully disburse the loan on "17 April 2024" with "750" EUR transaction amount
+    When Admin adds "LOAN_NSF_FEE" due date charge with "17 April 2024" due date and 20 EUR transaction amount
+    When Admin sets the business date to "18 April 2024"
+    When Admin runs inline COB job for Loan
+    And Admin waives due date charge
+    When Admin sets the business date to "19 April 2024"
+    When Admin adds "LOAN_NSF_FEE" due date charge with "19 April 2024" due date and 55 EUR transaction amount
+    When Admin sets the business date to "20 April 2024"
+    When Admin runs inline COB job for Loan
+    And Customer makes "AUTOPAY" repayment on "20 April 2024" with 55 EUR transaction amount
+    When Admin adds "LOAN_NSF_FEE" due date charge with "20 April 2024" due date and 60 EUR transaction amount
+    And Customer makes "AUTOPAY" repayment on "20 April 2024" with 810 EUR transaction amount
+    Then Loan Charges tab has a given charge with the following data:
+      | Name    | isPenalty | Payment due at     | Due as of     | Calculation type | Due  | Paid | Waived | Outstanding |
+      | NSF fee | true      | Specified due date | 20 April 2024 | Flat             | 60.0 | 60.0 | 0.0    | 0.0         |
+      | NSF fee | true      | Specified due date | 19 April 2024 | Flat             | 55.0 | 55.0 | 0.0    | 0.0         |
+      | NSF fee | true      | Specified due date | 17 April 2024 | Flat             | 20.0 | 0.0  | 20.0   | 0.0         |
+    Then Loan Repayment schedule has 4 periods, with the following data for periods:
+      | Nr | Days | Date          | Paid date     | Balance of loan | Principal due | Interest | Fees | Penalties | Due   | Paid  | In advance | Late  | Waived | Outstanding |
+      |    |      | 17 April 2024 |               | 750.0           |               |          | 0.0  |           | 0.0   | 0.0   |            |       |        |             |
+      | 1  | 0    | 17 April 2024 | 20 April 2024 | 562.5           | 187.5         | 0.0      | 0.0  | 0.0       | 187.5 | 187.5 | 0.0        | 187.5 | 0.0    | 0.0         |
+      | 2  | 15   | 02 May 2024   | 20 April 2024 | 375.0           | 187.5         | 0.0      | 0.0  | 135.0     | 322.5 | 302.5 | 302.5      | 0.0   | 20.0   | 0.0         |
+      | 3  | 15   | 17 May 2024   | 20 April 2024 | 187.5           | 187.5         | 0.0      | 0.0  | 0.0       | 187.5 | 187.5 | 187.5      | 0.0   | 0.0    | 0.0         |
+      | 4  | 15   | 01 June 2024  | 20 April 2024 | 0.0             | 187.5         | 0.0      | 0.0  | 0.0       | 187.5 | 187.5 | 187.5      | 0.0   | 0.0    | 0.0         |
+    Then Loan Repayment schedule has the following data in Total row:
+      | Principal due | Interest | Fees | Penalties | Due   | Paid  | In advance | Late  | Waived | Outstanding |
+      | 750.0         | 0.0      | 0.0  | 135.0     | 885.0 | 865.0 | 677.5      | 187.5 | 20.0   | 0.0         |
+    Then Loan Transactions tab has the following data:
+      | Transaction date | Transaction Type   | Amount | Principal | Interest | Fees | Penalties | Loan Balance |
+      | 17 April 2024    | Disbursement       | 750.0  | 0.0       | 0.0      | 0.0  | 0.0       | 750.0        |
+      | 17 April 2024    | Accrual            | 20.0   | 0.0       | 0.0      | 0.0  | 20.0      | 0.0          |
+      | 17 April 2024    | Waive loan charges | 20.0   | 0.0       | 0.0      | 0.0  | 20.0      | 750.0        |
+      | 19 April 2024    | Accrual            | 55.0   | 0.0       | 0.0      | 0.0  | 55.0      | 0.0          |
+      | 20 April 2024    | Repayment          | 55.0   | 55.0      | 0.0      | 0.0  | 0.0       | 695.0        |
+      | 20 April 2024    | Repayment          | 810.0  | 695.0     | 0.0      | 0.0  | 115.0     | 0.0          |
+      | 20 April 2024    | Accrual            | 60.0   | 0.0       | 0.0      | 0.0  | 60.0      | 0.0          |
+
+  @TestRailId:C3139
+  Scenario: Verify global config charge-accrual-date function: multiple installment loan, charge-accrual-date = submitted-date, multi disbursement, periodic accrual
+    When Global config "charge-accrual-date" value set to "submitted-date"
+    When Admin sets the business date to "01 April 2024"
+    When Admin creates a client with random data
+    When Admin creates a fully customized loan with the following data:
+      | LoanProduct                                                                                     | submitted on date | with Principal | ANNUAL interest rate % | interest type     | interest calculation period | amortization type  | loanTermFrequency | loanTermFrequencyType | repaymentEvery | repaymentFrequencyType | numberOfRepayments | graceOnPrincipalPayment | graceOnInterestPayment | interest free period | Payment strategy                        |
+      | LP1_INTEREST_DECLINING_BALANCE_SAR_RECALCULATION_SAME_AS_REPAYMENT_COMPOUNDING_NONE_MULTIDISB | 01 April 2024     | 1000           | 12                     | DECLINING_BALANCE | SAME_AS_REPAYMENT_PERIOD    | EQUAL_INSTALLMENTS | 45                | DAYS                  | 15             | DAYS                   | 3                  | 0                       | 0                      | 0                    | PENALTIES_FEES_INTEREST_PRINCIPAL_ORDER |
+    And Admin successfully approves the loan on "01 April 2024" with "1000" amount and expected disbursement date on "05 April 2024"
+    When Admin sets the business date to "05 April 2024"
+    When Admin successfully disburse the loan on "05 April 2024" with "500" EUR transaction amount
+    Then Loan Repayment schedule has 3 periods, with the following data for periods:
+      | Nr | Days | Date          | Paid date | Balance of loan | Principal due | Interest | Fees | Penalties | Due    | Paid | In advance | Late | Outstanding |
+      |    |      | 05 April 2024 |           | 500.0           |               |          | 0.0  |           | 0.0    | 0.0  |            |      |             |
+      | 1  | 15   | 20 April 2024 |           | 334.47          | 165.53        | 2.47     | 0.0  | 0.0       | 168.0  | 0.0  | 0.0        | 0.0  | 168.0       |
+      | 2  | 15   | 05 May 2024   |           | 168.12          | 166.35        | 1.65     | 0.0  | 0.0       | 168.0  | 0.0  | 0.0        | 0.0  | 168.0       |
+      | 3  | 15   | 20 May 2024   |           | 0.0             | 168.12        | 0.83     | 0.0  | 0.0       | 168.95 | 0.0  | 0.0        | 0.0  | 168.95      |
+    Then Loan Transactions tab has the following data:
+      | Transaction date | Transaction Type | Amount | Principal | Interest | Fees | Penalties | Loan Balance |
+      | 05 April 2024    | Disbursement     | 500.0  | 0.0       | 0.0      | 0.0  | 0.0       | 500.0        |
+    Then Loan Repayment schedule has the following data in Total row:
+      | Principal due | Interest | Fees | Penalties | Due    | Paid | In advance | Late | Outstanding |
+      | 500.0         | 4.95     | 0.0  | 0.0       | 504.95 | 0.0  | 0.0        | 0.0  | 504.95      |
+    When Admin sets the business date to "25 April 2024"
+    When Admin runs inline COB job for Loan
+    Then Loan Repayment schedule has 3 periods, with the following data for periods:
+      | Nr | Days | Date          | Paid date | Balance of loan | Principal due | Interest | Fees | Penalties | Due    | Paid | In advance | Late | Outstanding |
+      |    |      | 05 April 2024 |           | 500.0           |               |          | 0.0  |           | 0.0    | 0.0  |            |      |             |
+      | 1  | 15   | 20 April 2024 |           | 334.47          | 165.53        | 2.47     | 0.0  | 0.0       | 168.0  | 0.0  | 0.0        | 0.0  | 168.0       |
+      | 2  | 15   | 05 May 2024   |           | 168.94          | 165.53        | 2.47     | 0.0  | 0.0       | 168.0  | 0.0  | 0.0        | 0.0  | 168.0       |
+      | 3  | 15   | 20 May 2024   |           | 0.0             | 168.94        | 0.83     | 0.0  | 0.0       | 169.77 | 0.0  | 0.0        | 0.0  | 169.77      |
+    Then Loan Transactions tab has the following data:
+      | Transaction date | Transaction Type | Amount | Principal | Interest | Fees | Penalties | Loan Balance |
+      | 05 April 2024    | Disbursement     | 500.0  | 0.0       | 0.0      | 0.0  | 0.0       | 500.0        |
+      | 20 April 2024    | Accrual          | 2.47   | 0.0       | 2.47     | 0.0  | 0.0       | 0.0          |
+      | 24 April 2024    | Accrual          | 0.66   | 0.0       | 0.66     | 0.0  | 0.0       | 0.0          |
+    Then Loan Repayment schedule has the following data in Total row:
+      | Principal due | Interest | Fees | Penalties | Due    | Paid | In advance | Late | Outstanding |
+      | 500.0         | 5.77     | 0.0  | 0.0       | 505.77 | 0.0  | 0.0        | 0.0  | 505.77      |
+    When Admin sets the business date to "26 April 2024"
+    And Admin successfully disburse the loan on "26 April 2024" with "500" EUR transaction amount
+    Then Loan Repayment schedule has 3 periods, with the following data for periods:
+      | Nr | Days | Date          | Paid date | Balance of loan | Principal due | Interest | Fees | Penalties | Due    | Paid | In advance | Late | Outstanding |
+      |    |      | 05 April 2024 |           | 500.0           |               |          | 0.0  |           | 0.0    | 0.0  |            |      |             |
+      | 1  | 15   | 20 April 2024 |           | 165.47          | 334.53        | 2.47     | 0.0  | 0.0       | 337.0  | 0.0  | 0.0        | 0.0  | 337.0       |
+      |    |      | 26 April 2024 |           | 500.0           |               |          | 0.0  |           | 0.0    | 0.0  |            |      |             |
+      | 2  | 15   | 05 May 2024   |           | 332.42          | 333.05        | 3.95     | 0.0  | 0.0       | 337.0  | 0.0  | 0.0        | 0.0  | 337.0       |
+      | 3  | 15   | 20 May 2024   |           | 0.0             | 332.42        | 1.64     | 0.0  | 0.0       | 334.06 | 0.0  | 0.0        | 0.0  | 334.06      |
+    Then Loan Transactions tab has the following data:
+      | Transaction date | Transaction Type | Amount | Principal | Interest | Fees | Penalties | Loan Balance |
+      | 05 April 2024    | Disbursement     | 500.0  | 0.0       | 0.0      | 0.0  | 0.0       | 500.0        |
+      | 20 April 2024    | Accrual          | 2.47   | 0.0       | 2.47     | 0.0  | 0.0       | 0.0          |
+      | 24 April 2024    | Accrual          | 1.05   | 0.0       | 1.05     | 0.0  | 0.0       | 0.0          |
+      | 26 April 2024    | Disbursement     | 500.0  | 0.0       | 0.0      | 0.0  | 0.0       | 1000.0       |
+    Then Loan Repayment schedule has the following data in Total row:
+      | Principal due | Interest | Fees | Penalties | Due     | Paid | In advance | Late | Outstanding |
+      | 1000.0        | 8.06     | 0.0  | 0.0       | 1008.06 | 0.0  | 0.0        | 0.0  | 1008.06     |
     When Global config "charge-accrual-date" value set to "due-date"
