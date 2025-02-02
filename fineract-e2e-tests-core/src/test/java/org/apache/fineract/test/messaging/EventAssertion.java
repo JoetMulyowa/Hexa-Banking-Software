@@ -27,6 +27,7 @@ import java.time.LocalDate;
 import java.util.function.Function;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.fineract.test.messaging.config.EventProperties;
 import org.apache.fineract.test.messaging.event.Event;
 import org.apache.fineract.test.messaging.event.EventFactory;
@@ -38,6 +39,7 @@ import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
 @Component
+@Slf4j
 public class EventAssertion {
 
     private final EventStore eventStore;
@@ -83,11 +85,8 @@ public class EventAssertion {
 
             String receivedEventsLogParam = eventStore.getReceivedEvents().stream().map(LoggedEvent::new).map(LoggedEvent::toString)
                     .reduce("", (s, e) -> format("%s%s%n", s, e));
-            Assertions.fail("""
-                    %s has been received, but it was unexpected.
-                    Events received but not verified:
-                    %s
-                    """.formatted(event.getEventName(), receivedEventsLogParam));
+            Assertions.fail("%s has been received, but it was unexpected. Events received but not verified: %s", event.getEventName(),
+                    receivedEventsLogParam);
         } catch (ConditionTimeoutException e) {
             // This is the expected outcome here!
         }
@@ -102,6 +101,7 @@ public class EventAssertion {
         } else {
             eventMessage = (EventMessage<R>) new EmptyEventMessage();
         }
+        log.debug("Assert event: {}", eventMessage.getIdempotencyKey());
         return new EventAssertionBuilder<>(eventMessage);
     }
 
@@ -167,7 +167,11 @@ public class EventAssertion {
 
         public EventAssertionBuilder<R> isEqualTo(BigDecimal value) {
             if (eventProperties.isEventVerificationEnabled()) {
-                Assertions.assertThat(extractedValue).isEqualByComparingTo(value);
+                if (extractedValue == null) {
+                    Assertions.assertThat(extractedValue).isEqualTo(value);
+                } else {
+                    Assertions.assertThat(extractedValue).isEqualByComparingTo(value);
+                }
             }
             return new EventAssertionBuilder<>(eventMessage);
         }

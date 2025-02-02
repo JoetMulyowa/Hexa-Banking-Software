@@ -25,7 +25,6 @@ import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -462,16 +461,16 @@ public class SavingsAccountReadPlatformServiceImpl implements SavingsAccountRead
                     LocalDate currentDate = DateUtils.getBusinessLocalDate();
                     if (isDormancyTrackingActive && statusEnum.equals(SavingsAccountStatusType.ACTIVE.getValue())) {
                         if (subStatusEnum < SavingsAccountSubStatusEnum.ESCHEAT.getValue()) {
-                            daysToEscheat = Math
-                                    .toIntExact(ChronoUnit.DAYS.between(currentDate, lastActiveTransactionDate.plusDays(numDaysToEscheat)));
+                            daysToEscheat = DateUtils.getExactDifferenceInDays(currentDate,
+                                    lastActiveTransactionDate.plusDays(numDaysToEscheat));
                         }
                         if (subStatusEnum < SavingsAccountSubStatusEnum.DORMANT.getValue()) {
-                            daysToDormancy = Math.toIntExact(
-                                    ChronoUnit.DAYS.between(currentDate, lastActiveTransactionDate.plusDays(numDaysToDormancy)));
+                            daysToDormancy = DateUtils.getExactDifferenceInDays(currentDate,
+                                    lastActiveTransactionDate.plusDays(numDaysToDormancy));
                         }
                         if (subStatusEnum < SavingsAccountSubStatusEnum.INACTIVE.getValue()) {
-                            daysToInactive = Math.toIntExact(
-                                    ChronoUnit.DAYS.between(currentDate, lastActiveTransactionDate.plusDays(numDaysToInactive)));
+                            daysToInactive = DateUtils.getExactDifferenceInDays(currentDate,
+                                    lastActiveTransactionDate.plusDays(numDaysToInactive));
                         }
                     }
                     final LocalDate approvedOnDate = JdbcSupport.getLocalDate(rs, "approvedOnDate");
@@ -837,16 +836,13 @@ public class SavingsAccountReadPlatformServiceImpl implements SavingsAccountRead
             LocalDate currentDate = DateUtils.getBusinessLocalDate();
             if (isDormancyTrackingActive && statusEnum.equals(SavingsAccountStatusType.ACTIVE.getValue())) {
                 if (subStatusEnum < SavingsAccountSubStatusEnum.ESCHEAT.getValue()) {
-                    daysToEscheat = Math
-                            .toIntExact(ChronoUnit.DAYS.between(currentDate, lastActiveTransactionDate.plusDays(numDaysToEscheat)));
+                    daysToEscheat = DateUtils.getExactDifferenceInDays(currentDate, lastActiveTransactionDate.plusDays(numDaysToEscheat));
                 }
                 if (subStatusEnum < SavingsAccountSubStatusEnum.DORMANT.getValue()) {
-                    daysToDormancy = Math
-                            .toIntExact(ChronoUnit.DAYS.between(currentDate, lastActiveTransactionDate.plusDays(numDaysToDormancy)));
+                    daysToDormancy = DateUtils.getExactDifferenceInDays(currentDate, lastActiveTransactionDate.plusDays(numDaysToDormancy));
                 }
                 if (subStatusEnum < SavingsAccountSubStatusEnum.INACTIVE.getValue()) {
-                    daysToInactive = Math
-                            .toIntExact(ChronoUnit.DAYS.between(currentDate, lastActiveTransactionDate.plusDays(numDaysToInactive)));
+                    daysToInactive = DateUtils.getExactDifferenceInDays(currentDate, lastActiveTransactionDate.plusDays(numDaysToInactive));
                 }
             }
 
@@ -1154,8 +1150,8 @@ public class SavingsAccountReadPlatformServiceImpl implements SavingsAccountRead
                     charges, chargeOptions);
         }
 
-        final List<DatatableData> datatableTemplates = this.entityDatatableChecksReadService
-                .retrieveTemplates(StatusEnum.CREATE.getCode().longValue(), EntityTables.SAVINGS.getName(), productId);
+        final List<DatatableData> datatableTemplates = this.entityDatatableChecksReadService.retrieveTemplates(StatusEnum.CREATE.getValue(),
+                EntityTables.SAVINGS.getName(), productId);
         template.setDatatables(datatableTemplates);
 
         return template;
