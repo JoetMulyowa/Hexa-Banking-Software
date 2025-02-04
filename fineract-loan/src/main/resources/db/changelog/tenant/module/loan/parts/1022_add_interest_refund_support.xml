@@ -23,14 +23,49 @@
                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
 
-    <changeSet author="fineract" id="1022-1">
+    <changeSet author="fineract" id="1022-1-fix">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="m_product_loan" columnName="supported_interest_refund_types"/>
+            </not>
+        </preConditions>
         <addColumn tableName="m_product_loan">
             <column name="supported_interest_refund_types" type="TEXT"/>
         </addColumn>
     </changeSet>
-    <changeSet author="fineract" id="1022-2">
+    <changeSet author="fineract" id="1022-2-fix">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="m_loan" columnName="supported_interest_refund_types"/>
+            </not>
+        </preConditions>
         <addColumn tableName="m_loan">
             <column name="supported_interest_refund_types" type="TEXT"/>
         </addColumn>
     </changeSet>
+
+    <changeSet author="fineract" id="Fix-m_product_loan_datatype_supported_interest_refund_types_from_boolean_to_varchar">
+        <preConditions onFail="MARK_RAN">
+            <columnExists tableName="m_product_loan" columnName="supported_interest_refund_types"/>
+        </preConditions>
+        <modifyDataType tableName="m_product_loan" columnName="supported_interest_refund_types" newDataType="VARCHAR(255)"/>
+    </changeSet>
+
+    <changeSet author="fineract" id="clean_m_product_loan_supported_interest_refund_types">
+
+        <sql>
+            UPDATE m_product_loan t SET t.supported_interest_refund_types = NULL WHERE t.supported_interest_refund_types = 0
+        </sql>
+    </changeSet>
+    <changeSet author="fineract" id="clean_m_product_loan_loan_transaction_strategy_code_loan_transaction_strategy_name">
+        <sql>
+            UPDATE m_product_loan t SET t.loan_transaction_strategy_code = 'interest-principal-penalties-fees-order-strategy', t.loan_transaction_strategy_name = 'Interest, Principal, Penalties, Fees Order' WHERE t.loan_transaction_strategy_code = '-'  AND t.loan_transaction_strategy_name = '-'
+        </sql>
+    </changeSet>
+<!--    <changeSet author="fineract" id="clean_loan_configurable_attributes">-->
+<!--        <sql>-->
+<!--            INSERT INTO m_product_loan_configurable_attributes(id, loan_product_id, amortization_method_enum, interest_method_enum, loan_transaction_strategy_code, interest_calculated_in_period_enum, arrearstolerance_amount, repay_every, moratorium, grace_on_arrears_ageing) VALUES (1, 1, true, true, true, true, true, true, true, true)-->
+<!--        </sql>-->
+<!--    </changeSet>-->
 </databaseChangeLog>
+

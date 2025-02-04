@@ -167,7 +167,7 @@ tasks.named('binaryDistTar') {
 
     // Track dependencies explicitly
     dependsOn(war, ':fineract-client:jar', ':fineract-avro-schemas:jar',
-              ':fineract-provider:build', ':fineract-doc:doc',
+              ':fineract-provider:build',
               ':fineract-client:javadocJar', ':fineract-client:sourcesJar',
               ':fineract-avro-schemas:javadocJar', ':fineract-avro-schemas:sourcesJar')
 
