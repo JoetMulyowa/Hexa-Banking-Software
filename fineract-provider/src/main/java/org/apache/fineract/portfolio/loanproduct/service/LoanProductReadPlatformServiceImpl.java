@@ -63,6 +63,8 @@ import org.apache.fineract.portfolio.loanproduct.exception.LoanProductNotFoundEx
 import org.apache.fineract.portfolio.rate.data.RateData;
 import org.apache.fineract.portfolio.rate.service.RateReadService;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -70,6 +72,7 @@ import org.springframework.jdbc.core.RowMapper;
 @RequiredArgsConstructor
 public class LoanProductReadPlatformServiceImpl implements LoanProductReadPlatformService {
 
+    private static final Logger log = LoggerFactory.getLogger(LoanProductReadPlatformServiceImpl.class);
     private final PlatformSecurityContext context;
     private final JdbcTemplate jdbcTemplate;
     private final ChargeReadPlatformService chargeReadPlatformService;
@@ -94,7 +97,7 @@ public class LoanProductReadPlatformServiceImpl implements LoanProductReadPlatfo
             final LoanProductMapper rm = new LoanProductMapper(charges, borrowerCycleVariationDatas, rates, delinquencyBucketOptions,
                     advancedPaymentData, creditAllocationData);
             final String sql = "select " + rm.loanProductSchema() + " where lp.id = ?";
-
+            log.info("Loan Product Query: {}", sql);
             return this.jdbcTemplate.queryForObject(sql, rm, loanProductId); // NOSONAR
 
         } catch (final EmptyResultDataAccessException e) {
