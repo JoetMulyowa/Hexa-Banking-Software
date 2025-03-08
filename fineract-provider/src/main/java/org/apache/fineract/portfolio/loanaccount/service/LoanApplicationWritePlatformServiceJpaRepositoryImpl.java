@@ -172,7 +172,7 @@ public class LoanApplicationWritePlatformServiceJpaRepositoryImpl implements Loa
             //Send SMS
             String clientName = loan.client().getDisplayName();
             String mobileNo = loan.client().getMobileNo();
-            String message = String.format("Dear %s, your loan application has been received, it's under review, we will notify you once the process is done, thank you for choosing %s .", clientName, ThreadLocalContextUtil.getTenant().getName());
+            String message = String.format("Dear %s, your loan application has been received, it\\'s under review, we will notify you once the process is done, thank you for choosing %s .", clientName, ThreadLocalContextUtil.getTenant().getName());
 
             if (mobileNo != null) {
             smsNotificationWritePlatformService.sendSms(new SmsNotificationData(mobileNo, message, "LOAN-SUBMIT-" + loan.getId()));
