@@ -57,10 +57,10 @@ public class SMSNotificationWritePlatformServiceImpl implements SmsNotificationW
         final GlobalConfigurationProperty property = this.configurationRepositoryWrapper
                 .findOneByNameWithNotFoundDetection(GlobalConfigurationConstants.ENABLE_SMS_NOTIFICATIONS);
 
-        if (property.isEnabled()) {
+        if (property.isEnabled() && property.getStringValue() != null) {
         Gson gson = new GsonBuilder().create();
 
-        smsNotificationData.setSender(getConfigProperty("sms.sender.id"));
+        smsNotificationData.setSender(property.getStringValue());
         smsNotificationData.setService(getConfigProperty("sms.service"));
         smsNotificationData.setPassword(getConfigProperty("sms.password"));
 
