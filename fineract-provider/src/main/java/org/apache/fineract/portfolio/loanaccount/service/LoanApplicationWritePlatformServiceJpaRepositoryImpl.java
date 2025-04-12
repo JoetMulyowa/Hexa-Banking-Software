@@ -43,7 +43,6 @@ import org.apache.fineract.infrastructure.core.data.CommandProcessingResult;
 import org.apache.fineract.infrastructure.core.data.CommandProcessingResultBuilder;
 import org.apache.fineract.infrastructure.core.exception.ErrorHandler;
 import org.apache.fineract.infrastructure.core.exception.PlatformDataIntegrityException;
-import org.apache.fineract.infrastructure.core.service.ThreadLocalContextUtil;
 import org.apache.fineract.infrastructure.dataqueries.data.EntityTables;
 import org.apache.fineract.infrastructure.dataqueries.data.StatusEnum;
 import org.apache.fineract.infrastructure.dataqueries.service.EntityDatatableChecksWritePlatformService;
@@ -53,7 +52,6 @@ import org.apache.fineract.infrastructure.event.business.domain.loan.LoanRejecte
 import org.apache.fineract.infrastructure.event.business.domain.loan.LoanUndoApprovalBusinessEvent;
 import org.apache.fineract.infrastructure.event.business.service.BusinessEventNotifierService;
 import org.apache.fineract.infrastructure.security.service.PlatformSecurityContext;
-import org.apache.fineract.notification.data.SmsNotificationData;
 import org.apache.fineract.notification.data.SmsTypeEnum;
 import org.apache.fineract.notification.service.SMSNotificationWritePlatformServiceImpl;
 import org.apache.fineract.portfolio.account.domain.AccountAssociationType;
@@ -170,8 +168,8 @@ public class LoanApplicationWritePlatformServiceJpaRepositoryImpl implements Loa
                     StatusEnum.CREATE.getValue(), EntityTables.LOAN.getForeignKeyColumnNameOnDatatable(), loan.productId());
             // Trigger business event
             businessEventNotifierService.notifyPostBusinessEvent(new LoanCreatedBusinessEvent(loan));
-            //Send SMS
-            smsNotificationWritePlatformService.processSmsNotification(loan,SmsTypeEnum.LOAN_SUBMISSION,null);
+            // Send SMS
+            smsNotificationWritePlatformService.processSmsNotification(loan, SmsTypeEnum.LOAN_SUBMISSION, null);
             // Building response
             return new CommandProcessingResultBuilder() //
                     .withCommandId(command.commandId()) //
@@ -570,8 +568,8 @@ public class LoanApplicationWritePlatformServiceJpaRepositoryImpl implements Loa
             createNote(noteText, loan).ifPresent(note -> changes.put("note", noteText));
             businessEventNotifierService.notifyPostBusinessEvent(new LoanApprovedBusinessEvent(loan));
         }
-        //Send SMS
-        smsNotificationWritePlatformService.processSmsNotification(loan,SmsTypeEnum.LOAN_APPROVAL,null);
+        // Send SMS
+        smsNotificationWritePlatformService.processSmsNotification(loan, SmsTypeEnum.LOAN_APPROVAL, null);
 
         return new CommandProcessingResultBuilder() //
                 .withCommandId(command.commandId()) //
@@ -717,8 +715,8 @@ public class LoanApplicationWritePlatformServiceJpaRepositoryImpl implements Loa
             createNote(noteText, loan);
         }
 
-        //Send SMS
-        smsNotificationWritePlatformService.processSmsNotification(loan,SmsTypeEnum.LOAN_REJECTED,null);
+        // Send SMS
+        smsNotificationWritePlatformService.processSmsNotification(loan, SmsTypeEnum.LOAN_REJECTED, null);
 
         businessEventNotifierService.notifyPostBusinessEvent(new LoanRejectedBusinessEvent(loan));
         return new CommandProcessingResultBuilder() //
