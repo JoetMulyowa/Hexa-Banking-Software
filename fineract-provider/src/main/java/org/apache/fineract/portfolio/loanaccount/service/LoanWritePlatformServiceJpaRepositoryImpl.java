@@ -549,8 +549,8 @@ public class LoanWritePlatformServiceJpaRepositoryImpl implements LoanWritePlatf
         postJournalEntries(loan, existingTransactionIds, existingReversedTransactionIds);
         loanAccrualTransactionBusinessEventService.raiseBusinessEventForAccrualTransactions(loan, existingTransactionIds);
 
-        //Send SMS
-        smsNotificationWritePlatformService.processSmsNotification(loan, SmsTypeEnum.LOAN_DISBURSEMENT,null);
+        // Send SMS
+        smsNotificationWritePlatformService.processSmsNotification(loan, SmsTypeEnum.LOAN_DISBURSEMENT, null);
 
         return new CommandProcessingResultBuilder() //
                 .withCommandId(command.commandId()) //
@@ -1285,10 +1285,10 @@ public class LoanWritePlatformServiceJpaRepositoryImpl implements LoanWritePlatf
         loan = loanTransaction.getLoan();
         this.loanAccountDomainService.updateAndSaveLoanCollateralTransactionsForIndividualAccounts(loan, loanTransaction);
 
-        if(loan.getStatus().isClosed()){
-            smsNotificationWritePlatformService.processSmsNotification(loan,SmsTypeEnum.LOAN_CLOSED, loanTransaction);
+        if (loan.getStatus().isClosed()) {
+            smsNotificationWritePlatformService.processSmsNotification(loan, SmsTypeEnum.LOAN_CLOSED, loanTransaction);
         }
-        smsNotificationWritePlatformService.processSmsNotification(loan,SmsTypeEnum.LOAN_REPAYMENT,loanTransaction);
+        smsNotificationWritePlatformService.processSmsNotification(loan, SmsTypeEnum.LOAN_REPAYMENT, loanTransaction);
 
         return new CommandProcessingResultBuilder().withCommandId(command.commandId()) //
                 .withLoanId(loan.getId()) //

@@ -41,6 +41,4 @@ public enum SmsTypeEnum {
         this.description = description;
     }
 
-
-
 }
