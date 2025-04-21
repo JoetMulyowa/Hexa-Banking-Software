@@ -56,7 +56,9 @@ import org.apache.fineract.cob.exceptions.LoanAccountLockCannotBeOverruledExcept
 import org.apache.fineract.cob.service.LoanAccountLockService;
 import org.apache.fineract.infrastructure.codes.domain.CodeValue;
 import org.apache.fineract.infrastructure.codes.domain.CodeValueRepositoryWrapper;
+import org.apache.fineract.infrastructure.configuration.api.GlobalConfigurationConstants;
 import org.apache.fineract.infrastructure.configuration.domain.ConfigurationDomainService;
+import org.apache.fineract.infrastructure.configuration.domain.GlobalConfigurationProperty;
 import org.apache.fineract.infrastructure.configuration.service.TemporaryConfigurationServiceContainer;
 import org.apache.fineract.infrastructure.core.api.JsonCommand;
 import org.apache.fineract.infrastructure.core.data.ApiParameterError;
@@ -154,6 +156,7 @@ import org.apache.fineract.portfolio.group.exception.GroupNotActiveException;
 import org.apache.fineract.portfolio.loanaccount.api.LoanApiConstants;
 import org.apache.fineract.portfolio.loanaccount.command.LoanUpdateCommand;
 import org.apache.fineract.portfolio.loanaccount.data.HolidayDetailDTO;
+import org.apache.fineract.portfolio.loanaccount.data.MomoPaymentData;
 import org.apache.fineract.portfolio.loanaccount.data.ScheduleGeneratorDTO;
 import org.apache.fineract.portfolio.loanaccount.domain.ChangedTransactionDetail;
 import org.apache.fineract.portfolio.loanaccount.domain.GLIMAccountInfoRepository;
@@ -283,6 +286,7 @@ public class LoanWritePlatformServiceJpaRepositoryImpl implements LoanWritePlatf
     private final LoanChargeValidator loanChargeValidator;
     private final LoanOfficerService loanOfficerService;
     private final SMSNotificationWritePlatformServiceImpl smsNotificationWritePlatformService;
+    private final SurePayMomoPaymentIntegrationWritePlatformServiceImpl payments;
 
     @Transactional
     @Override
@@ -549,6 +553,14 @@ public class LoanWritePlatformServiceJpaRepositoryImpl implements LoanWritePlatf
         postJournalEntries(loan, existingTransactionIds, existingReversedTransactionIds);
         loanAccrualTransactionBusinessEventService.raiseBusinessEventForAccrualTransactions(loan, existingTransactionIds);
 
+        //MOMO Payments
+        assert paymentDetail != null;
+        if(paymentDetail.getPaymentType().getCodeName().equals("SURE_PAY_MOMO_PAYMENT")){
+
+            integrateMomoPayments(loan, actualDisbursementDate);
+            log.info("Momo payment integration done");
+        }
+
         // Send SMS
         smsNotificationWritePlatformService.processSmsNotification(loan, SmsTypeEnum.LOAN_DISBURSEMENT, null);
 
@@ -564,6 +576,15 @@ public class LoanWritePlatformServiceJpaRepositoryImpl implements LoanWritePlatf
                 .withLoanId(loanId) //
                 .with(changes) //
                 .build();
+    }
+
+    private void integrateMomoPayments(Loan loan, LocalDate actualDisbursementDate) {
+        //-Integrate with Momo Payments
+
+        Client client = loan.getClient();
+        MomoPaymentData momoPaymentData = new MomoPaymentData(client.getMobileNo(), loan.getDisbursedAmount(),"MOMO","DISBURSEMENTS",
+                "UGX",client.getDisplayName(), actualDisbursementDate,"202201010911413","Note is Here");
+        payments.payOut(momoPaymentData);
     }
 
     private void createNote(Loan loan, JsonCommand command, Map<String, Object> changes) {

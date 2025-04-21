@@ -33,4 +33,26 @@
             <column name="description"/>
         </insert>
     </changeSet>
+    <changeSet author="fineract" id="add_momo_payment_type">
+        <insert tableName="m_payment_type">
+            <column name="id" value="100"/>
+            <column name="value" value="SurePay Mobile Money Payment"/>
+            <column name="description" value="SurePay Mobile Money Payment"/>
+            <column name="is_cash_payment" valueBoolean="false"/>
+            <column name="order_position" valueNumeric="0"/>
+            <column name="code_name" value="SURE_PAY_MOMO_PAYMENT"/>
+            <column name="is_system_defined" valueBoolean="true"/>
+        </insert>
+    </changeSet>
+    <changeSet author="fineract" id="Surepay-Momo-Integration">
+        <insert tableName="c_configuration">
+            <column name="name" value="enable-Surepay-Mobile-Money-Payment"/>
+            <column name="value"/>
+            <column name="date_value"/>
+            <column name="string_value"/>
+            <column name="enabled" valueBoolean="false"/>
+            <column name="is_trap_door" valueBoolean="false"/>
+            <column name="description" value="Enable Mobile Money Integrations with Surepay Payments"/>
+        </insert>
+    </changeSet>
 </databaseChangeLog>
