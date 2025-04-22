@@ -22,8 +22,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.fineract.infrastructure.configuration.domain.GlobalConfigurationRepositoryWrapper;
 import org.apache.fineract.portfolio.loanaccount.data.MomoPaymentData;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -33,9 +40,52 @@ public class SurePayMomoPaymentIntegrationWritePlatformServiceImpl implements Su
     @Autowired
     private final GlobalConfigurationRepositoryWrapper configurationRepositoryWrapper;
     public static final String FORM_URL_CONTENT_TYPE = "application/json";
+    private static final String HMAC_SHA512 = "HmacSHA512";
+
 
     @Override
     public void payOut(MomoPaymentData momoPaymentData) {
+    log.info(momoPaymentData.toString());
 
+        String merchantSecretKey = getConfigProperty("momo.secret");
+        String message = buildMessage(momoPaymentData);
+        String signature = generateSignature(message, merchantSecretKey);
+
+        log.info("Signature: " + signature);
+    }
+
+    @NotNull
+    private static String buildMessage(MomoPaymentData momoPaymentData) {
+        String accountNumber = momoPaymentData.getAccountNumber();
+        String accountName = momoPaymentData.getAccountName();
+        String tranType = momoPaymentData.getTranType();
+        String tranAmount = momoPaymentData.getTranAmount().toString();
+        String paymentDate = momoPaymentData.getPaymentDate().toString();
+        String vendorCode = momoPaymentData.getVendorCode();
+        String vendorTranId = momoPaymentData.getVendorTranId();
+        return  accountNumber +accountName+tranAmount+tranType+paymentDate
+                +vendorCode+vendorTranId;
+    }
+
+    public  String generateSignature(String requestParams, String merchantSecretKey) {
+        byte[] secretKeyBytes = merchantSecretKey.getBytes(StandardCharsets.UTF_8);
+        Mac hmacSha512 = null;
+        try {
+            hmacSha512 = Mac.getInstance(HMAC_SHA512);
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+        SecretKeySpec secretKeySpec = new SecretKeySpec(secretKeyBytes, HMAC_SHA512);
+        try {
+            hmacSha512.init(secretKeySpec);
+        } catch (InvalidKeyException e) {
+            throw new RuntimeException(e);
+        }
+        byte[] macData = hmacSha512.doFinal(requestParams.getBytes(StandardCharsets.UTF_8));
+        return Base64.getEncoder().encodeToString(macData);
+    }
+
+    private String getConfigProperty(String propertyName) {
+        return this.env.getProperty(propertyName);
     }
 }

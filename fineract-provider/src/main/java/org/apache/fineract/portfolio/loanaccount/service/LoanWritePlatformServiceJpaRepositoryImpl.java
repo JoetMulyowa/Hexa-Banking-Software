@@ -345,6 +345,7 @@ public class LoanWritePlatformServiceJpaRepositoryImpl implements LoanWritePlatf
         if (!loan.isMultiDisburmentLoan()) {
             loan.setActualDisbursementDate(actualDisbursementDate);
         }
+        final BigDecimal loanAmount = command.bigDecimalValueOfParameterNamed(LoanApiConstants.principalDisbursedParameterName);
 
         // validate actual disbursement date against meeting date
         ScheduleGeneratorDTO scheduleGeneratorDTO = this.loanUtilService.buildScheduleGeneratorDTO(loan, null);
@@ -556,8 +557,18 @@ public class LoanWritePlatformServiceJpaRepositoryImpl implements LoanWritePlatf
         //MOMO Payments
         assert paymentDetail != null;
         if(paymentDetail.getPaymentType().getCodeName().equals("SURE_PAY_MOMO_PAYMENT")){
+            LocalDate today = DateUtils.getLocalDateOfTenant();
+            if (actualDisbursementDate != null && DateUtils.isBefore(actualDisbursementDate,today)) {
+                final String errorMessage = "The date on which a loan is disbursed cannot be before its Today's date: " + today;
+                throw new InvalidLoanStateTransitionException("disbursal", "cannot.be.before.today", errorMessage,
+                        actualDisbursementDate, today);
+            }
+            if(!loan.getCurrency().getCode().equals("UGX")){
+                throw new GeneralPlatformDomainRuleException("error.msg.momo.payment.currency.not.supported",
+                        "Surepay Momo payment is not supported for this currency");
+            }
 
-            integrateMomoPayments(loan, actualDisbursementDate);
+            integrateMomoPayments(loan, actualDisbursementDate,loanAmount);
             log.info("Momo payment integration done");
         }
 
@@ -578,11 +589,11 @@ public class LoanWritePlatformServiceJpaRepositoryImpl implements LoanWritePlatf
                 .build();
     }
 
-    private void integrateMomoPayments(Loan loan, LocalDate actualDisbursementDate) {
+    private void integrateMomoPayments(Loan loan, LocalDate actualDisbursementDate, BigDecimal amount) {
         //-Integrate with Momo Payments
 
         Client client = loan.getClient();
-        MomoPaymentData momoPaymentData = new MomoPaymentData(client.getMobileNo(), loan.getDisbursedAmount(),"MOMO","DISBURSEMENTS",
+        MomoPaymentData momoPaymentData = new MomoPaymentData(client.getMobileNo(), amount,"MOMO","DISBURSEMENTS",
                 "UGX",client.getDisplayName(), actualDisbursementDate,"202201010911413","Note is Here");
         payments.payOut(momoPaymentData);
     }

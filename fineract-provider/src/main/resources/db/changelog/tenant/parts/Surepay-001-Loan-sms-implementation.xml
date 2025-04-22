@@ -44,9 +44,9 @@
             <column name="is_system_defined" valueBoolean="true"/>
         </insert>
     </changeSet>
-    <changeSet author="fineract" id="Surepay-Momo-Integration">
+    <changeSet author="fineract" id="SurePay-Momo-Integration">
         <insert tableName="c_configuration">
-            <column name="name" value="enable-Surepay-Mobile-Money-Payment"/>
+            <column name="name" value="enable-surepay-mobile-money-payment"/>
             <column name="value"/>
             <column name="date_value"/>
             <column name="string_value"/>
