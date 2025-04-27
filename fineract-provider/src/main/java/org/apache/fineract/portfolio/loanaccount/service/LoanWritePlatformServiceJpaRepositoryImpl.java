@@ -594,7 +594,7 @@ public class LoanWritePlatformServiceJpaRepositoryImpl implements LoanWritePlatf
 
         Client client = loan.getClient();
         MomoPaymentData momoPaymentData = new MomoPaymentData(client.getMobileNo(), amount,"MOMO","DISBURSEMENTS",
-                "UGX",client.getDisplayName(), actualDisbursementDate,"202201010911413","Note is Here");
+                "UGX",client.getDisplayName(), DateUtils.format(actualDisbursementDate),"202201010911413","Note is Here");
         payments.payOut(momoPaymentData);
     }
 

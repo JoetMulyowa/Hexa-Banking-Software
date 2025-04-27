@@ -32,7 +32,7 @@ public class MomoPaymentData {
     private String tranType;
     private String currency;
     private String accountName;
-    private LocalDate paymentDate;
+    private String paymentDate;
     private String password;
     private String tranSignature;
     private String vendorCode;
@@ -40,7 +40,7 @@ public class MomoPaymentData {
     private String vendorTranId;
     private String tranNarration;
 
-    public MomoPaymentData(String accountNumber, BigDecimal tranAmount, String accountType, String tranType, String currency, String accountName, LocalDate paymentDate, String vendorTranId, String tranNarration) {
+    public MomoPaymentData(String accountNumber, BigDecimal tranAmount, String accountType, String tranType, String currency, String accountName, String paymentDate, String vendorTranId, String tranNarration) {
         this.accountNumber = accountNumber;
         this.tranAmount = tranAmount;
         this.accountType = accountType;
