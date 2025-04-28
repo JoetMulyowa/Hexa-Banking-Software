@@ -1,0 +1,79 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements. See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership. The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+package org.apache.fineract.portfolio.loanaccount.domain;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Column;
+import lombok.Getter;
+import org.apache.fineract.infrastructure.core.domain.AbstractAuditableWithUTCDateTimeCustom;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+
+
+@Getter
+@Entity
+@Table(name = "m_momo_loan_payment_transaction")
+public class MomoLoanPaymentTransaction extends AbstractAuditableWithUTCDateTimeCustom<Long> {
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "loan_id", nullable = false)
+    private Loan loan;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "loan_transaction_id")
+    private LoanTransaction loanTransaction;
+
+
+    @Column(name = "middleware_reference_no")
+    private String middlewareReferenceNo;
+
+    @Column(name = "transaction_date", nullable = false)
+    private LocalDate dateOf;
+
+    @Column(name = "amount", scale = 6, precision = 19, nullable = false)
+    private BigDecimal amount;
+
+    @Column(name = "is_reversed", nullable = false)
+    private Boolean reversed;
+
+    @Column(name = "transaction_charge", scale = 6, precision = 19)
+    private BigDecimal tranCharge;
+
+    @Column(name = "status_code")
+    private String statusCode;
+
+    @Column(name = "status_desc")
+    private String statusDesc;
+
+    @Column(name = "request_body")
+    private String requestBody;
+
+    @Column(name = "response_body")
+    private String responseBody;
+
+    @Column(name = "error_msg")
+    private String errorMsg;
+
+    protected MomoLoanPaymentTransaction() {}
+
+}

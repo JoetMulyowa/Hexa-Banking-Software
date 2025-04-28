@@ -55,4 +55,76 @@
             <column name="description" value="Enable Mobile Money Integrations with Surepay Payments"/>
         </insert>
     </changeSet>
+    <changeSet author="fineract" id="add_momo_pay_is_disbursed_via_momo_pay_on_a_loan_account">
+        <addColumn tableName="m_loan">
+            <column name="is_disbursed_via_momo_pay"  type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+    <changeSet author="fineract" id="add_momo_pay_disbursement_payout_completed_on_a_loan_account">
+        <addColumn tableName="m_loan">
+            <column name="disbursement_payout_completed"  type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+    <changeSet author="fineract" id="create_m_momo_loan_payment_transaction_table">
+        <createTable tableName="m_momo_loan_payment_transaction">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="loan_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="loan_transaction_id" type="BIGINT">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="middleware_reference_no" type="BIGINT">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="transaction_date" type="DATE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="amount" type="DECIMAL(19, 6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="transaction_charge" type="DECIMAL(19, 6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_reversed" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="status_code" type="VARCHAR(10)">
+            </column>
+            <column name="status_desc" type="VARCHAR(255)">
+            </column>
+            <column name="request_body" type="TEXT">
+            </column>
+            <column name="response_body" type="TEXT">
+            </column>
+            <column name="error_msg" type="TEXT">
+            </column>
+
+            <column name="created_by" type="BIGINT">
+                <constraints nullable="true"
+                             foreignKeyName="FK_m_mobile_money_transaction_request_createdby"
+                             references="m_appuser(id)"/>
+            </column>
+            <column name="created_on_utc" type="DATETIME">
+                <constraints nullable="false" />
+            </column>
+            <column name="last_modified_by" type="BIGINT">
+                <constraints nullable="true"
+                             foreignKeyName="FK_m_mobile_money_transaction_request_modified_by"
+                             references="m_appuser(id)"/>
+            </column>
+            <column name="last_modified_on_utc" type="DATETIME">
+                <constraints nullable="false" />
+            </column>
+
+        </createTable>
+    </changeSet>
+
 </databaseChangeLog>

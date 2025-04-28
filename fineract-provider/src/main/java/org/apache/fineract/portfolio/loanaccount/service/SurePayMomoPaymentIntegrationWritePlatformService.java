@@ -20,7 +20,9 @@ package org.apache.fineract.portfolio.loanaccount.service;
 
 import org.apache.fineract.portfolio.loanaccount.data.MomoPaymentData;
 
+import java.io.IOException;
+
 public interface SurePayMomoPaymentIntegrationWritePlatformService {
 
-    void payOut(MomoPaymentData momoPaymentData);
+    void payOut(MomoPaymentData momoPaymentData) throws IOException;
 }

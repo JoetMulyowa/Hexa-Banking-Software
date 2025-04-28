@@ -22,32 +22,15 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+
 @Data
 @NoArgsConstructor
-public class MomoPaymentData {
-    private String accountNumber;
-    private BigDecimal tranAmount;
-    private String accountType;
-    private String tranType;
-    private String currency;
-    private String accountName;
-    private String paymentDate;
-    private String password;
-    private String tranSignature;
-    private String vendorCode;
-    private String telecom;
+public class MomoPaymentResponse {
     private String vendorTranId;
-    private String tranNarration;
+    private String tranReference;
+    private String statusCode;
+    private String statusDesc;
+    private String processorId;
+    private String tranCharge;
 
-    public MomoPaymentData(String accountNumber, BigDecimal tranAmount, String accountType, String tranType, String currency, String accountName, String paymentDate, String vendorTranId, String tranNarration) {
-        this.accountNumber = accountNumber;
-        this.tranAmount = tranAmount;
-        this.accountType = accountType;
-        this.tranType = tranType;
-        this.currency = currency;
-        this.accountName = accountName;
-        this.paymentDate = paymentDate;
-        this.vendorTranId = vendorTranId;
-        this.tranNarration = tranNarration;
-    }
 }

@@ -31,6 +31,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.github.resilience4j.retry.annotation.Retry;
+
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -371,7 +373,7 @@ public class LoanWritePlatformServiceJpaRepositoryImpl implements LoanWritePlatf
         Money amountBeforeAdjust = loan.getPrincipal();
         final Locale locale = command.extractLocale();
         final DateTimeFormatter fmt = DateTimeFormatter.ofPattern(command.dateFormat()).withLocale(locale);
-
+        LoanTransaction disbursementTransaction = null;
         if (loan.canDisburse()) {
             // Get netDisbursalAmount from disbursal screen field.
             final BigDecimal netDisbursalAmount = command
@@ -411,7 +413,7 @@ public class LoanWritePlatformServiceJpaRepositoryImpl implements LoanWritePlatf
                 disburseLoanToLoan(loan, command, loanOutstanding);
             }
 
-            LoanTransaction disbursementTransaction = null;
+
             if (isAccountTransfer) {
                 disburseLoanToSavings(loan, command, amountToDisburse, paymentDetail);
                 existingTransactionIds.addAll(loan.findExistingTransactionIds());
@@ -568,8 +570,12 @@ public class LoanWritePlatformServiceJpaRepositoryImpl implements LoanWritePlatf
                         "Surepay Momo payment is not supported for this currency");
             }
 
-            integrateMomoPayments(loan, actualDisbursementDate,loanAmount);
-            log.info("Momo payment integration done");
+            try {
+                integrateMomoPayments(loan, actualDisbursementDate,loanAmount,disbursementTransaction,disbursalTransactionId);
+                log.info("Momo payment integration done");
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
 
         // Send SMS
@@ -589,12 +595,13 @@ public class LoanWritePlatformServiceJpaRepositoryImpl implements LoanWritePlatf
                 .build();
     }
 
-    private void integrateMomoPayments(Loan loan, LocalDate actualDisbursementDate, BigDecimal amount) {
+    private void integrateMomoPayments(Loan loan, LocalDate actualDisbursementDate, BigDecimal amount,LoanTransaction transaction,Long transactionId) throws IOException {
         //-Integrate with Momo Payments
+        log.info("Loan-Tx-->"+transaction.getId());
 
         Client client = loan.getClient();
         MomoPaymentData momoPaymentData = new MomoPaymentData(client.getMobileNo(), amount,"MOMO","DISBURSEMENTS",
-                "UGX",client.getDisplayName(), DateUtils.format(actualDisbursementDate),"202201010911413","Note is Here");
+                "UGX",client.getDisplayName(), DateUtils.format(actualDisbursementDate),loan.getAccountNumber()+transactionId,"Note is Here");
         payments.payOut(momoPaymentData);
     }
 

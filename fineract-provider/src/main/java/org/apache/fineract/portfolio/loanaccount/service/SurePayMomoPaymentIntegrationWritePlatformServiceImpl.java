@@ -20,17 +20,23 @@ package org.apache.fineract.portfolio.loanaccount.service;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonElement;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 import org.apache.fineract.infrastructure.configuration.domain.GlobalConfigurationRepositoryWrapper;
+import org.apache.fineract.infrastructure.core.exception.GeneralPlatformDomainRuleException;
 import org.apache.fineract.infrastructure.core.exception.PlatformDataIntegrityException;
 import org.apache.fineract.portfolio.loanaccount.data.MomoPaymentData;
+import org.apache.fineract.portfolio.loanaccount.data.MomoPaymentResponse;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -50,20 +56,17 @@ public class SurePayMomoPaymentIntegrationWritePlatformServiceImpl implements Su
 
 
     @Override
-    public void payOut(MomoPaymentData momoPaymentData) {
+    public void payOut(MomoPaymentData momoPaymentData) throws IOException {
 
         log.info(momoPaymentData.toString());
 
-        String merchantSecretKey = getConfigProperty("momo.secret");
         String message = buildMessage(momoPaymentData);
-        String signature = generateSignature(message, merchantSecretKey);
 
-        momoPaymentData.setTranSignature(signature);
+        momoPaymentData.setTranSignature(generateSignature(message, getConfigProperty("momo.secret")));
         momoPaymentData.setVendorCode(getConfigProperty("momo.vendorCode"));
         momoPaymentData.setTelecom(getConfigProperty("momo.telecom"));
 
         log.info("Momo Payments - - - >: " + momoPaymentData.toString());
-        log.info("Signature: " + signature);
 
         Gson gson = new GsonBuilder().create();
         String momo = gson.toJson(momoPaymentData);
@@ -77,28 +80,34 @@ public class SurePayMomoPaymentIntegrationWritePlatformServiceImpl implements Su
 
         RequestBody formBody = RequestBody.create(MediaType.parse(FORM_URL_CONTENT_TYPE), momo);
 
-        Request request = new Request.Builder().url(url).header("Authorization","Basic c3VyZXBheWFkbWluOnNlY3JldDEyMw==").post(formBody).build();
+        Request request = new Request.Builder().url(url).header("Authorization",encodeBasicAuth(getConfigProperty("momo.username"), getConfigProperty("momo.password"))).post(formBody).build();
 
-        List<Throwable> exceptions = new ArrayList<>();
-
-        try {
             response = client.newCall(request).execute();
             String resObject = response.body().string();
-            if (response.isSuccessful()) {
 
-                log.info("Momo Message Response :=>" + resObject);
-
+            log.info("Momo Message Response :=>" + resObject);
+            JsonObject jsonResponse = JsonParser.parseString(resObject).getAsJsonObject();
+            log.info(" Code or status ---- > "+jsonResponse.get("statusCode"));
+            if (response.isSuccessful() && jsonResponse.get("statusCode").getAsString().equals("PENDING")) {
+                //React to the response from MiddleWare . .
+                MomoPaymentResponse resBody = getMomoResponse(jsonResponse);
+                log.info("Momo Message Response :=>" + resBody.toString());
             } else {
                 log.error("Failed To Make Momo Payout :" + resObject);
-
-                handleAPIIntegrityIssues(resObject);
-
+                throw new GeneralPlatformDomainRuleException("error.msg.momo.integration.payout.failed","Failed To Make Momo Payout :" + jsonResponse.get("statusDesc"));
             }
-        } catch (Exception e) {
-            log.error("Posting Momo notification has failed " + e);
-            exceptions.add(e);
-        }
 
+    }
+
+    private MomoPaymentResponse getMomoResponse(JsonObject jsonResponse) {
+        MomoPaymentResponse momoPaymentResponse = new MomoPaymentResponse();
+        momoPaymentResponse.setVendorTranId(jsonResponse.get("vendorTranId").getAsString());
+        momoPaymentResponse.setTranReference(jsonResponse.get("tranReference").getAsString());
+        momoPaymentResponse.setStatusCode(jsonResponse.get("statusCode").getAsString());
+        momoPaymentResponse.setStatusDesc(jsonResponse.get("statusDesc").getAsString());
+        momoPaymentResponse.setProcessorId(jsonResponse.get("processorId").getAsString());
+        momoPaymentResponse.setTranCharge(jsonResponse.get("tranCharge").getAsString());
+        return momoPaymentResponse;
     }
 
     @NotNull
@@ -135,7 +144,10 @@ public class SurePayMomoPaymentIntegrationWritePlatformServiceImpl implements Su
     private String getConfigProperty(String propertyName) {
         return this.env.getProperty(propertyName);
     }
-    private void handleAPIIntegrityIssues(String httpResponse) {
-        throw new PlatformDataIntegrityException(httpResponse, httpResponse);
+
+
+    public String encodeBasicAuth(String username, String password) {
+        String credentials = username + ":" + password;
+        return "Basic "+Base64.getEncoder().encodeToString(credentials.getBytes(StandardCharsets.UTF_8));
     }
 }
