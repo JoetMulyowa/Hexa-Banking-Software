@@ -71,16 +71,7 @@ import org.apache.fineract.portfolio.interestpauses.service.InterestPauseReadPla
 import org.apache.fineract.portfolio.interestpauses.service.InterestPauseReadPlatformServiceImpl;
 import org.apache.fineract.portfolio.interestpauses.service.InterestPauseWritePlatformService;
 import org.apache.fineract.portfolio.interestpauses.service.InterestPauseWritePlatformServiceImpl;
-import org.apache.fineract.portfolio.loanaccount.domain.GLIMAccountInfoRepository;
-import org.apache.fineract.portfolio.loanaccount.domain.LoanAccountDomainService;
-import org.apache.fineract.portfolio.loanaccount.domain.LoanChargeRepository;
-import org.apache.fineract.portfolio.loanaccount.domain.LoanLifecycleStateMachine;
-import org.apache.fineract.portfolio.loanaccount.domain.LoanRepaymentScheduleInstallmentRepository;
-import org.apache.fineract.portfolio.loanaccount.domain.LoanRepaymentScheduleTransactionProcessorFactory;
-import org.apache.fineract.portfolio.loanaccount.domain.LoanRepository;
-import org.apache.fineract.portfolio.loanaccount.domain.LoanRepositoryWrapper;
-import org.apache.fineract.portfolio.loanaccount.domain.LoanTransactionRelationRepository;
-import org.apache.fineract.portfolio.loanaccount.domain.LoanTransactionRepository;
+import org.apache.fineract.portfolio.loanaccount.domain.*;
 import org.apache.fineract.portfolio.loanaccount.guarantor.service.GuarantorDomainService;
 import org.apache.fineract.portfolio.loanaccount.loanschedule.domain.LoanScheduleGeneratorFactory;
 import org.apache.fineract.portfolio.loanaccount.loanschedule.service.LoanScheduleAssembler;
@@ -494,7 +485,7 @@ public class LoanAccountConfiguration {
     @Bean
     @ConditionalOnMissingBean(SurePayMomoPaymentIntegrationWritePlatformServiceImpl.class)
     public SurePayMomoPaymentIntegrationWritePlatformServiceImpl surePayMomoPaymentIntegrationWritePlatformService(
-            GlobalConfigurationRepositoryWrapper configurationRepositoryWrapper) {
-        return new SurePayMomoPaymentIntegrationWritePlatformServiceImpl(configurationRepositoryWrapper);
+            GlobalConfigurationRepositoryWrapper configurationRepositoryWrapper, LoanRepositoryWrapper loanRepositoryWrapper, MomoLoanPaymentTransactionRepository loanPaymentTransactionRepository) {
+        return new SurePayMomoPaymentIntegrationWritePlatformServiceImpl(configurationRepositoryWrapper,loanRepositoryWrapper,loanPaymentTransactionRepository);
     }
 }

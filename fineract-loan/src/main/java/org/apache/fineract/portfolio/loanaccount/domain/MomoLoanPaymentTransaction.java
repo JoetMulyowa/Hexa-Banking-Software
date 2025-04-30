@@ -23,13 +23,14 @@ import jakarta.persistence.Table;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Column;
+import lombok.Data;
 import lombok.Getter;
 import org.apache.fineract.infrastructure.core.domain.AbstractAuditableWithUTCDateTimeCustom;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-
+@Data
 @Getter
 @Entity
 @Table(name = "m_momo_loan_payment_transaction")
@@ -74,6 +75,6 @@ public class MomoLoanPaymentTransaction extends AbstractAuditableWithUTCDateTime
     @Column(name = "error_msg")
     private String errorMsg;
 
-    protected MomoLoanPaymentTransaction() {}
+    public MomoLoanPaymentTransaction() {}
 
 }

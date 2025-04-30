@@ -22,27 +22,34 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.google.gson.JsonElement;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.*;
+import okhttp3.MediaType;
+import okhttp3.HttpUrl;
+import okhttp3.OkHttpClient;
+import okhttp3.Response;
+import okhttp3.RequestBody;
+import okhttp3.Request;
 import org.apache.fineract.infrastructure.configuration.domain.GlobalConfigurationRepositoryWrapper;
 import org.apache.fineract.infrastructure.core.exception.GeneralPlatformDomainRuleException;
-import org.apache.fineract.infrastructure.core.exception.PlatformDataIntegrityException;
 import org.apache.fineract.portfolio.loanaccount.data.MomoPaymentData;
 import org.apache.fineract.portfolio.loanaccount.data.MomoPaymentResponse;
+import org.apache.fineract.portfolio.loanaccount.domain.Loan;
+import org.apache.fineract.portfolio.loanaccount.domain.LoanRepositoryWrapper;
+import org.apache.fineract.portfolio.loanaccount.domain.LoanTransaction;
+import org.apache.fineract.portfolio.loanaccount.domain.MomoLoanPaymentTransaction;
+import org.apache.fineract.portfolio.loanaccount.domain.MomoLoanPaymentTransactionRepository;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
 import java.util.Base64;
-import java.util.List;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -53,10 +60,12 @@ public class SurePayMomoPaymentIntegrationWritePlatformServiceImpl implements Su
     private final GlobalConfigurationRepositoryWrapper configurationRepositoryWrapper;
     public static final String FORM_URL_CONTENT_TYPE = "application/json";
     private static final String HMAC_SHA512 = "HmacSHA512";
+    private final LoanRepositoryWrapper loanRepositoryWrapper;
+    private final MomoLoanPaymentTransactionRepository loanPaymentTransactionRepository;
 
 
     @Override
-    public void payOut(MomoPaymentData momoPaymentData) throws IOException {
+    public void payOut(MomoPaymentData momoPaymentData, Loan loan, LoanTransaction loanTransaction) throws IOException {
 
         log.info(momoPaymentData.toString());
 
@@ -92,6 +101,27 @@ public class SurePayMomoPaymentIntegrationWritePlatformServiceImpl implements Su
                 //React to the response from MiddleWare . .
                 MomoPaymentResponse resBody = getMomoResponse(jsonResponse);
                 log.info("Momo Message Response :=>" + resBody.toString());
+
+                loan.setDisbursedViaMomoPay(Boolean.TRUE);
+                loan.setDibursementPayoutCompleted(Boolean.FALSE);
+                this.loanRepositoryWrapper.saveAndFlush(loan);
+
+                MomoLoanPaymentTransaction momopay = new MomoLoanPaymentTransaction();
+
+                momopay.setLoan(loan);
+                momopay.setLoanTransaction(loanTransaction);
+                momopay.setMiddlewareReferenceNo(resBody.getTranReference());
+                momopay.setDateOf(loanTransaction.getTransactionDate());
+                momopay.setAmount(loanTransaction.getAmount());
+                momopay.setReversed(Boolean.FALSE);
+                   momopay.setTranCharge(BigDecimal.valueOf(Long.parseLong(resBody.getTranCharge())));
+                momopay.setStatusCode(resBody.getStatusCode());
+                momopay.setStatusDesc(resBody.getStatusDesc());
+                momopay.setRequestBody(momo);
+                momopay.setResponseBody(resObject);
+                loanPaymentTransactionRepository.saveAndFlush(momopay);
+
+
             } else {
                 log.error("Failed To Make Momo Payout :" + resObject);
                 throw new GeneralPlatformDomainRuleException("error.msg.momo.integration.payout.failed","Failed To Make Momo Payout :" + jsonResponse.get("statusDesc"));

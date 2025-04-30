@@ -127,4 +127,11 @@
         </createTable>
     </changeSet>
 
+    <changeSet id="Surepay-002-change-middleware-reference-no-to-varchar" author="bosco">
+        <modifyDataType
+                tableName="m_momo_loan_payment_transaction"
+                columnName="middleware_reference_no"
+                newDataType="VARCHAR(255)"/>
+    </changeSet>
+
 </databaseChangeLog>

@@ -571,7 +571,7 @@ public class LoanWritePlatformServiceJpaRepositoryImpl implements LoanWritePlatf
             }
 
             try {
-                integrateMomoPayments(loan, actualDisbursementDate,loanAmount,disbursementTransaction,disbursalTransactionId);
+                integrateMomoPayments(loan, actualDisbursementDate,loanAmount,disbursementTransaction);
                 log.info("Momo payment integration done");
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -595,14 +595,14 @@ public class LoanWritePlatformServiceJpaRepositoryImpl implements LoanWritePlatf
                 .build();
     }
 
-    private void integrateMomoPayments(Loan loan, LocalDate actualDisbursementDate, BigDecimal amount,LoanTransaction transaction,Long transactionId) throws IOException {
+    private void integrateMomoPayments(Loan loan, LocalDate actualDisbursementDate, BigDecimal amount,LoanTransaction transaction) throws IOException {
         //-Integrate with Momo Payments
         log.info("Loan-Tx-->"+transaction.getId());
 
         Client client = loan.getClient();
         MomoPaymentData momoPaymentData = new MomoPaymentData(client.getMobileNo(), amount,"MOMO","DISBURSEMENTS",
-                "UGX",client.getDisplayName(), DateUtils.format(actualDisbursementDate),loan.getAccountNumber()+transactionId,"Note is Here");
-        payments.payOut(momoPaymentData);
+                "UGX",client.getDisplayName(), DateUtils.format(actualDisbursementDate),loan.getAccountNumber()+transaction.getId(),"Loan Disbursement "+loan.getAccountNumber());
+        payments.payOut(momoPaymentData,loan,transaction);
     }
 
     private void createNote(Loan loan, JsonCommand command, Map<String, Object> changes) {
