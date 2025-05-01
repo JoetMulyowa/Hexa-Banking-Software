@@ -18,17 +18,16 @@
  */
 package org.apache.fineract.portfolio.loanaccount.domain;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import lombok.Data;
 import lombok.Getter;
 import org.apache.fineract.infrastructure.core.domain.AbstractAuditableWithUTCDateTimeCustom;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
 
 @Data
 @Getter
@@ -43,7 +42,6 @@ public class MomoLoanPaymentTransaction extends AbstractAuditableWithUTCDateTime
     @ManyToOne(optional = false)
     @JoinColumn(name = "loan_transaction_id")
     private LoanTransaction loanTransaction;
-
 
     @Column(name = "middleware_reference_no")
     private String middlewareReferenceNo;

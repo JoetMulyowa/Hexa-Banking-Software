@@ -31,7 +31,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.github.resilience4j.retry.annotation.Retry;
-
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -58,9 +57,7 @@ import org.apache.fineract.cob.exceptions.LoanAccountLockCannotBeOverruledExcept
 import org.apache.fineract.cob.service.LoanAccountLockService;
 import org.apache.fineract.infrastructure.codes.domain.CodeValue;
 import org.apache.fineract.infrastructure.codes.domain.CodeValueRepositoryWrapper;
-import org.apache.fineract.infrastructure.configuration.api.GlobalConfigurationConstants;
 import org.apache.fineract.infrastructure.configuration.domain.ConfigurationDomainService;
-import org.apache.fineract.infrastructure.configuration.domain.GlobalConfigurationProperty;
 import org.apache.fineract.infrastructure.configuration.service.TemporaryConfigurationServiceContainer;
 import org.apache.fineract.infrastructure.core.api.JsonCommand;
 import org.apache.fineract.infrastructure.core.data.ApiParameterError;
@@ -413,7 +410,6 @@ public class LoanWritePlatformServiceJpaRepositoryImpl implements LoanWritePlatf
                 disburseLoanToLoan(loan, command, loanOutstanding);
             }
 
-
             if (isAccountTransfer) {
                 disburseLoanToSavings(loan, command, amountToDisburse, paymentDetail);
                 existingTransactionIds.addAll(loan.findExistingTransactionIds());
@@ -556,22 +552,22 @@ public class LoanWritePlatformServiceJpaRepositoryImpl implements LoanWritePlatf
         postJournalEntries(loan, existingTransactionIds, existingReversedTransactionIds);
         loanAccrualTransactionBusinessEventService.raiseBusinessEventForAccrualTransactions(loan, existingTransactionIds);
 
-        //MOMO Payments
+        // MOMO Payments
         assert paymentDetail != null;
-        if(paymentDetail.getPaymentType().getCodeName().equals("SURE_PAY_MOMO_PAYMENT")){
+        if (paymentDetail.getPaymentType().getCodeName().equals("SURE_PAY_MOMO_PAYMENT")) {
             LocalDate today = DateUtils.getLocalDateOfTenant();
-            if (actualDisbursementDate != null && DateUtils.isBefore(actualDisbursementDate,today)) {
+            if (actualDisbursementDate != null && DateUtils.isBefore(actualDisbursementDate, today)) {
                 final String errorMessage = "The date on which a loan is disbursed cannot be before its Today's date: " + today;
-                throw new InvalidLoanStateTransitionException("disbursal", "cannot.be.before.today", errorMessage,
-                        actualDisbursementDate, today);
+                throw new InvalidLoanStateTransitionException("disbursal", "cannot.be.before.today", errorMessage, actualDisbursementDate,
+                        today);
             }
-            if(!loan.getCurrency().getCode().equals("UGX")){
+            if (!loan.getCurrency().getCode().equals("UGX")) {
                 throw new GeneralPlatformDomainRuleException("error.msg.momo.payment.currency.not.supported",
                         "Surepay Momo payment is not supported for this currency");
             }
 
             try {
-                integrateMomoPayments(loan, actualDisbursementDate,loanAmount,disbursementTransaction);
+                integrateMomoPayments(loan, actualDisbursementDate, loanAmount, disbursementTransaction);
                 log.info("Momo payment integration done");
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -595,14 +591,16 @@ public class LoanWritePlatformServiceJpaRepositoryImpl implements LoanWritePlatf
                 .build();
     }
 
-    private void integrateMomoPayments(Loan loan, LocalDate actualDisbursementDate, BigDecimal amount,LoanTransaction transaction) throws IOException {
-        //-Integrate with Momo Payments
-        log.info("Loan-Tx-->"+transaction.getId());
+    private void integrateMomoPayments(Loan loan, LocalDate actualDisbursementDate, BigDecimal amount, LoanTransaction transaction)
+            throws IOException {
+        // -Integrate with Momo Payments
+        log.info("Loan-Tx-->" + transaction.getId());
 
         Client client = loan.getClient();
-        MomoPaymentData momoPaymentData = new MomoPaymentData(client.getMobileNo(), amount,"MOMO","DISBURSEMENTS",
-                "UGX",client.getDisplayName(), DateUtils.format(actualDisbursementDate),loan.getAccountNumber()+transaction.getId(),"Loan Disbursement "+loan.getAccountNumber());
-        payments.payOut(momoPaymentData,loan,transaction);
+        MomoPaymentData momoPaymentData = new MomoPaymentData(client.getMobileNo(), amount, "MOMO", "DISBURSEMENTS", "UGX",
+                client.getDisplayName(), DateUtils.format(actualDisbursementDate), loan.getAccountNumber() + transaction.getId(),
+                "Loan Disbursement " + loan.getAccountNumber());
+        payments.payOut(momoPaymentData, loan, transaction);
     }
 
     private void createNote(Loan loan, JsonCommand command, Map<String, Object> changes) {

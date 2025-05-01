@@ -22,14 +22,22 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.MediaType;
 import okhttp3.HttpUrl;
+import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
-import okhttp3.Response;
-import okhttp3.RequestBody;
 import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 import org.apache.fineract.infrastructure.configuration.domain.GlobalConfigurationRepositoryWrapper;
 import org.apache.fineract.infrastructure.core.exception.GeneralPlatformDomainRuleException;
 import org.apache.fineract.portfolio.loanaccount.data.MomoPaymentData;
@@ -42,18 +50,11 @@ import org.apache.fineract.portfolio.loanaccount.domain.MomoLoanPaymentTransacti
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.nio.charset.StandardCharsets;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.util.Base64;
 
 @RequiredArgsConstructor
 @Slf4j
-public class SurePayMomoPaymentIntegrationWritePlatformServiceImpl implements SurePayMomoPaymentIntegrationWritePlatformService{
+public class SurePayMomoPaymentIntegrationWritePlatformServiceImpl implements SurePayMomoPaymentIntegrationWritePlatformService {
+
     @Autowired
     private Environment env;
     @Autowired
@@ -62,7 +63,6 @@ public class SurePayMomoPaymentIntegrationWritePlatformServiceImpl implements Su
     private static final String HMAC_SHA512 = "HmacSHA512";
     private final LoanRepositoryWrapper loanRepositoryWrapper;
     private final MomoLoanPaymentTransactionRepository loanPaymentTransactionRepository;
-
 
     @Override
     public void payOut(MomoPaymentData momoPaymentData, Loan loan, LoanTransaction loanTransaction) throws IOException {
@@ -89,43 +89,45 @@ public class SurePayMomoPaymentIntegrationWritePlatformServiceImpl implements Su
 
         RequestBody formBody = RequestBody.create(MediaType.parse(FORM_URL_CONTENT_TYPE), momo);
 
-        Request request = new Request.Builder().url(url).header("Authorization",encodeBasicAuth(getConfigProperty("momo.username"), getConfigProperty("momo.password"))).post(formBody).build();
+        Request request = new Request.Builder().url(url)
+                .header("Authorization", encodeBasicAuth(getConfigProperty("momo.username"), getConfigProperty("momo.password")))
+                .post(formBody).build();
 
-            response = client.newCall(request).execute();
-            String resObject = response.body().string();
+        response = client.newCall(request).execute();
+        String resObject = response.body().string();
 
-            log.info("Momo Message Response :=>" + resObject);
-            JsonObject jsonResponse = JsonParser.parseString(resObject).getAsJsonObject();
-            log.info(" Code or status ---- > "+jsonResponse.get("statusCode"));
-            if (response.isSuccessful() && jsonResponse.get("statusCode").getAsString().equals("PENDING")) {
-                //React to the response from MiddleWare . .
-                MomoPaymentResponse resBody = getMomoResponse(jsonResponse);
-                log.info("Momo Message Response :=>" + resBody.toString());
+        log.info("Momo Message Response :=>" + resObject);
+        JsonObject jsonResponse = JsonParser.parseString(resObject).getAsJsonObject();
+        log.info(" Code or status ---- > " + jsonResponse.get("statusCode"));
+        if (response.isSuccessful() && jsonResponse.get("statusCode").getAsString().equals("PENDING")) {
+            // React to the response from MiddleWare . .
+            MomoPaymentResponse resBody = getMomoResponse(jsonResponse);
+            log.info("Momo Message Response :=>" + resBody.toString());
 
-                loan.setDisbursedViaMomoPay(Boolean.TRUE);
-                loan.setDibursementPayoutCompleted(Boolean.FALSE);
-                this.loanRepositoryWrapper.saveAndFlush(loan);
+            loan.setDisbursedViaMomoPay(Boolean.TRUE);
+            loan.setDibursementPayoutCompleted(Boolean.FALSE);
+            this.loanRepositoryWrapper.saveAndFlush(loan);
 
-                MomoLoanPaymentTransaction momopay = new MomoLoanPaymentTransaction();
+            MomoLoanPaymentTransaction momopay = new MomoLoanPaymentTransaction();
 
-                momopay.setLoan(loan);
-                momopay.setLoanTransaction(loanTransaction);
-                momopay.setMiddlewareReferenceNo(resBody.getTranReference());
-                momopay.setDateOf(loanTransaction.getTransactionDate());
-                momopay.setAmount(loanTransaction.getAmount());
-                momopay.setReversed(Boolean.FALSE);
-                   momopay.setTranCharge(BigDecimal.valueOf(Long.parseLong(resBody.getTranCharge())));
-                momopay.setStatusCode(resBody.getStatusCode());
-                momopay.setStatusDesc(resBody.getStatusDesc());
-                momopay.setRequestBody(momo);
-                momopay.setResponseBody(resObject);
-                loanPaymentTransactionRepository.saveAndFlush(momopay);
+            momopay.setLoan(loan);
+            momopay.setLoanTransaction(loanTransaction);
+            momopay.setMiddlewareReferenceNo(resBody.getTranReference());
+            momopay.setDateOf(loanTransaction.getTransactionDate());
+            momopay.setAmount(loanTransaction.getAmount());
+            momopay.setReversed(Boolean.FALSE);
+            momopay.setTranCharge(BigDecimal.valueOf(Long.parseLong(resBody.getTranCharge())));
+            momopay.setStatusCode(resBody.getStatusCode());
+            momopay.setStatusDesc(resBody.getStatusDesc());
+            momopay.setRequestBody(momo);
+            momopay.setResponseBody(resObject);
+            loanPaymentTransactionRepository.saveAndFlush(momopay);
 
-
-            } else {
-                log.error("Failed To Make Momo Payout :" + resObject);
-                throw new GeneralPlatformDomainRuleException("error.msg.momo.integration.payout.failed","Failed To Make Momo Payout :" + jsonResponse.get("statusDesc"));
-            }
+        } else {
+            log.error("Failed To Make Momo Payout :" + resObject);
+            throw new GeneralPlatformDomainRuleException("error.msg.momo.integration.payout.failed",
+                    "Failed To Make Momo Payout :" + jsonResponse.get("statusDesc"));
+        }
 
     }
 
@@ -149,11 +151,10 @@ public class SurePayMomoPaymentIntegrationWritePlatformServiceImpl implements Su
         String paymentDate = momoPaymentData.getPaymentDate().toString();
         String vendorCode = momoPaymentData.getVendorCode();
         String vendorTranId = momoPaymentData.getVendorTranId();
-        return  accountNumber +accountName+tranAmount+tranType+paymentDate
-                +vendorCode+vendorTranId;
+        return accountNumber + accountName + tranAmount + tranType + paymentDate + vendorCode + vendorTranId;
     }
 
-    public  String generateSignature(String requestParams, String merchantSecretKey) {
+    public String generateSignature(String requestParams, String merchantSecretKey) {
         byte[] secretKeyBytes = merchantSecretKey.getBytes(StandardCharsets.UTF_8);
         Mac hmacSha512 = null;
         try {
@@ -175,9 +176,13 @@ public class SurePayMomoPaymentIntegrationWritePlatformServiceImpl implements Su
         return this.env.getProperty(propertyName);
     }
 
-
     public String encodeBasicAuth(String username, String password) {
         String credentials = username + ":" + password;
-        return "Basic "+Base64.getEncoder().encodeToString(credentials.getBytes(StandardCharsets.UTF_8));
+        return "Basic " + Base64.getEncoder().encodeToString(credentials.getBytes(StandardCharsets.UTF_8));
+    }
+
+    @Override
+    public void processLoanTransactionsOnMomoPayment() {
+
     }
 }

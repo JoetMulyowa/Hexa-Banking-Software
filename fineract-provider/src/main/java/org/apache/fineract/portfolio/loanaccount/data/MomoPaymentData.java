@@ -18,13 +18,14 @@
  */
 package org.apache.fineract.portfolio.loanaccount.data;
 
+import java.math.BigDecimal;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
 @Data
 @NoArgsConstructor
 public class MomoPaymentData {
+
     private String accountNumber;
     private BigDecimal tranAmount;
     private String accountType;
@@ -39,7 +40,8 @@ public class MomoPaymentData {
     private String vendorTranId;
     private String tranNarration;
 
-    public MomoPaymentData(String accountNumber, BigDecimal tranAmount, String accountType, String tranType, String currency, String accountName, String paymentDate, String vendorTranId, String tranNarration) {
+    public MomoPaymentData(String accountNumber, BigDecimal tranAmount, String accountType, String tranType, String currency,
+            String accountName, String paymentDate, String vendorTranId, String tranNarration) {
         this.accountNumber = accountNumber;
         this.tranAmount = tranAmount;
         this.accountType = accountType;

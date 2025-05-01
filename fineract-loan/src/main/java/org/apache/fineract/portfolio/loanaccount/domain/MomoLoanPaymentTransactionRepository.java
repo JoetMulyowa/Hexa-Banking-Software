@@ -21,5 +21,5 @@ package org.apache.fineract.portfolio.loanaccount.domain;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
-public interface MomoLoanPaymentTransactionRepository extends JpaRepository<MomoLoanPaymentTransaction, Long>, JpaSpecificationExecutor<MomoLoanPaymentTransaction> {
-}
+public interface MomoLoanPaymentTransactionRepository
+        extends JpaRepository<MomoLoanPaymentTransaction, Long>, JpaSpecificationExecutor<MomoLoanPaymentTransaction> {}

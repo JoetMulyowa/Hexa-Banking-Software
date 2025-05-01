@@ -18,13 +18,14 @@
  */
 package org.apache.fineract.portfolio.loanaccount.service;
 
+import java.io.IOException;
 import org.apache.fineract.portfolio.loanaccount.data.MomoPaymentData;
 import org.apache.fineract.portfolio.loanaccount.domain.Loan;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanTransaction;
 
-import java.io.IOException;
-
 public interface SurePayMomoPaymentIntegrationWritePlatformService {
 
     void payOut(MomoPaymentData momoPaymentData, Loan loan, LoanTransaction loanTransaction) throws IOException;
+
+    void processLoanTransactionsOnMomoPayment();
 }

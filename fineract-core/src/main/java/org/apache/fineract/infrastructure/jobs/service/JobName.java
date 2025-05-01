@@ -58,6 +58,7 @@ public enum JobName {
     PURGE_EXTERNAL_EVENTS("Purge External Events"), //
     PURGE_PROCESSED_COMMANDS("Purge Processed Commands"), //
     ACCRUAL_ACTIVITY_POSTING("Accrual Activity Posting"), //
+    PROCESS_LOAN_TRANSACTIONS_ON_MOMO_PAYMENT("Process Loan Transactions On Momo Payment"), //
     ;
 
     private final String name;

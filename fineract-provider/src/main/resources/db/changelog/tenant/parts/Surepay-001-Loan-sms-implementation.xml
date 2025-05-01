@@ -134,4 +134,26 @@
                 newDataType="VARCHAR(255)"/>
     </changeSet>
 
+    <changeSet id="Add_Job_To_Process_Loan_Transactions_On_Momo_Payment" author="bosco">
+    <insert tableName="job">
+        <column name="name" value="Process Loan Transactions On Momo Payment"/>
+        <column name="display_name" value="Process Loan Transactions On Momo Payment"/>
+        <column name="cron_expression" value="0 0 0 1/1 * ? *"/>
+        <column name="create_time" valueDate="${current_datetime}"/>
+        <column name="task_priority" valueNumeric="5"/>
+        <column name="group_name"/>
+        <column name="previous_run_start_time"/>
+        <column name="job_key" value="Process Loan Transactions On Momo PaymentJobDetail1 _ DEFAULT"/>
+        <column name="initializing_errorlog"/>
+        <column name="is_active" valueBoolean="true"/>
+        <column name="currently_running" valueBoolean="false"/>
+        <column name="updates_allowed" valueBoolean="true"/>
+        <column name="scheduler_group" valueNumeric="0"/>
+        <column name="is_misfired" valueBoolean="false"/>
+        <column name="node_id" valueNumeric="1"/>
+        <column name="is_mismatched_job" valueBoolean="true"/>
+        <column name="short_name" value="MOMO_PAY"/>
+    </insert>
+    </changeSet>
+
 </databaseChangeLog>
