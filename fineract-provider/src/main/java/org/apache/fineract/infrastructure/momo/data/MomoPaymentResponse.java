@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.fineract.portfolio.loanaccount.data;
+package org.apache.fineract.infrastructure.momo.data;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -31,5 +31,26 @@ public class MomoPaymentResponse {
     private String statusDesc;
     private String processorId;
     private String tranCharge;
+    private String msisdn;
+    private String customerName;
+    private String tranCode;
+    private String vendorCode;
+    private String gatewayRef;
+    private String fromAccount;
+    private String toAccount;
+    private String tranType;
+    private String currency;
+    private String accountType;
+    private String recordDate;
+    private String network;
+    private String tranNarration;
+    private String tranStatus;
+    private String reason;
+    private String telecomResponseDate;
+    private String suspiciousStatus;
+    private String returnUrl;
+    private String ovaAffected;
+    private String tranAmount;
+    private String convertedAmount;
 
 }

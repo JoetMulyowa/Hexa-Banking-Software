@@ -155,4 +155,11 @@
         <column name="short_name" value="MOMO_PAY"/>
     </insert>
     </changeSet>
+    <changeSet author="fineract" id="add_venderTranId_to_m_momo_loan_payment_transaction">
+        <addColumn tableName="m_momo_loan_payment_transaction">
+            <column name="vendor_tran_id"  type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>

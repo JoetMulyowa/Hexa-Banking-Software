@@ -19,7 +19,7 @@
 package org.apache.fineract.infrastructure.momo.service;
 
 import java.io.IOException;
-import org.apache.fineract.portfolio.loanaccount.data.MomoPaymentData;
+import org.apache.fineract.infrastructure.momo.data.MomoPaymentData;
 import org.apache.fineract.portfolio.loanaccount.domain.Loan;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanTransaction;
 

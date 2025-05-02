@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.fineract.portfolio.loanaccount.data;
+package org.apache.fineract.infrastructure.momo.data;
 
 import java.math.BigDecimal;
 import lombok.Data;

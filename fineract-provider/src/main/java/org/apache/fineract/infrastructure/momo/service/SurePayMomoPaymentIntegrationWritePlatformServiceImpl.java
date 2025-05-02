@@ -42,8 +42,8 @@ import org.apache.fineract.infrastructure.configuration.api.GlobalConfigurationC
 import org.apache.fineract.infrastructure.configuration.domain.GlobalConfigurationProperty;
 import org.apache.fineract.infrastructure.configuration.domain.GlobalConfigurationRepositoryWrapper;
 import org.apache.fineract.infrastructure.core.exception.GeneralPlatformDomainRuleException;
-import org.apache.fineract.portfolio.loanaccount.data.MomoPaymentData;
-import org.apache.fineract.portfolio.loanaccount.data.MomoPaymentResponse;
+import org.apache.fineract.infrastructure.momo.data.MomoPaymentData;
+import org.apache.fineract.infrastructure.momo.data.MomoPaymentResponse;
 import org.apache.fineract.portfolio.loanaccount.domain.Loan;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanRepositoryWrapper;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanTransaction;
@@ -125,6 +125,7 @@ public class SurePayMomoPaymentIntegrationWritePlatformServiceImpl implements Su
             momopay.setStatusDesc(resBody.getStatusDesc());
             momopay.setRequestBody(momo);
             momopay.setResponseBody(resObject);
+            momopay.setVendorTranId(resBody.getVendorTranId());
             loanPaymentTransactionRepository.saveAndFlush(momopay);
 
         } else {

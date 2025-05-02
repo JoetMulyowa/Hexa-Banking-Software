@@ -20,6 +20,14 @@ package org.apache.fineract.infrastructure.momo.domain;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import java.util.List;
 
 public interface MomoLoanPaymentTransactionRepository
-        extends JpaRepository<MomoLoanPaymentTransaction, Long>, JpaSpecificationExecutor<MomoLoanPaymentTransaction> {}
+        extends JpaRepository<MomoLoanPaymentTransaction, Long>, JpaSpecificationExecutor<MomoLoanPaymentTransaction> {
+
+    @Query("select trx FROM MomoLoanPaymentTransaction trx where trx.statusCode = :statusCode")
+    List<MomoLoanPaymentTransaction> findPendingMomoPayment(@Param("statusCode") String statusCode);
+}
