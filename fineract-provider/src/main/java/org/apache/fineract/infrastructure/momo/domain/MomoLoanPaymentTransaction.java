@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.fineract.portfolio.loanaccount.domain;
+package org.apache.fineract.infrastructure.momo.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -28,6 +28,8 @@ import java.time.LocalDate;
 import lombok.Data;
 import lombok.Getter;
 import org.apache.fineract.infrastructure.core.domain.AbstractAuditableWithUTCDateTimeCustom;
+import org.apache.fineract.portfolio.loanaccount.domain.Loan;
+import org.apache.fineract.portfolio.loanaccount.domain.LoanTransaction;
 
 @Data
 @Getter

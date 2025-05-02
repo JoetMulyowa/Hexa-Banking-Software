@@ -16,16 +16,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.fineract.portfolio.loanaccount.service;
+package org.apache.fineract.infrastructure.momo.domain;
 
-import java.io.IOException;
-import org.apache.fineract.portfolio.loanaccount.data.MomoPaymentData;
-import org.apache.fineract.portfolio.loanaccount.domain.Loan;
-import org.apache.fineract.portfolio.loanaccount.domain.LoanTransaction;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
-public interface SurePayMomoPaymentIntegrationWritePlatformService {
-
-    void payOut(MomoPaymentData momoPaymentData, Loan loan, LoanTransaction loanTransaction) throws IOException;
-
-    void processLoanTransactionsOnMomoPayment();
-}
+public interface MomoLoanPaymentTransactionRepository
+        extends JpaRepository<MomoLoanPaymentTransaction, Long>, JpaSpecificationExecutor<MomoLoanPaymentTransaction> {}

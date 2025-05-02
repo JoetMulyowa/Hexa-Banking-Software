@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.fineract.portfolio.loanaccount.service;
+package org.apache.fineract.infrastructure.momo.service;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -45,8 +45,8 @@ import org.apache.fineract.portfolio.loanaccount.data.MomoPaymentResponse;
 import org.apache.fineract.portfolio.loanaccount.domain.Loan;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanRepositoryWrapper;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanTransaction;
-import org.apache.fineract.portfolio.loanaccount.domain.MomoLoanPaymentTransaction;
-import org.apache.fineract.portfolio.loanaccount.domain.MomoLoanPaymentTransactionRepository;
+import org.apache.fineract.infrastructure.momo.domain.MomoLoanPaymentTransaction;
+import org.apache.fineract.infrastructure.momo.domain.MomoLoanPaymentTransactionRepository;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
