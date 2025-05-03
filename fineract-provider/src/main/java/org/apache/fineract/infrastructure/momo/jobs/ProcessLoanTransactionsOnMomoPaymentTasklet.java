@@ -24,6 +24,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -45,6 +46,7 @@ import org.apache.fineract.portfolio.loanaccount.domain.Loan;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanRepositoryWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.fineract.infrastructure.jobs.exception.JobExecutionException;
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.step.tasklet.Tasklet;
@@ -70,6 +72,7 @@ public class ProcessLoanTransactionsOnMomoPaymentTasklet implements Tasklet {
 
         List<MomoLoanPaymentTransaction> loanPaymentTransactionList = loanPaymentTransactionRepository
                 .findPendingMomoPayment(MomoTransactionTypeEnum.PENDING.getCode());
+        List<Throwable> exceptions = new ArrayList<>();
 
         if (!CollectionUtils.isEmpty(loanPaymentTransactionList)) {
             for (MomoLoanPaymentTransaction transaction : loanPaymentTransactionList) {
@@ -81,16 +84,23 @@ public class ProcessLoanTransactionsOnMomoPaymentTasklet implements Tasklet {
 
                         updateLoanAccountDisbursementDetails(transaction, paymentResponse);
                         updateMomoLoanPaymentTransactionDisbursementDetails(transaction, paymentResponse);
-                        // For FAILED Transactions, Reverse the Loan Account back to Approved
+                        // TODO :- For FAILED Transactions, Reverse the Loan Account back to Approved
 
                         log.info("Res::----> " + paymentResponse);
                     } catch (IOException e) {
-                        // Catch and log API details
-                        throw new RuntimeException(e);
+                        log.error("Momo Payments failed", e);
+                        exceptions.add(e);
+                    } catch (Exception e) {
+                        log.error("Failed to Process Mobile Money Transactions ", e);
+                        exceptions.add(e);
                     }
                 }
 
             }
+        }
+
+        if (!exceptions.isEmpty()) {
+            throw new JobExecutionException(exceptions);
         }
 
         LOG.info("Completed processing loan transactions on Momo payment at {}", DateUtils.getLocalDateTimeOfTenant());
@@ -154,10 +164,6 @@ public class ProcessLoanTransactionsOnMomoPaymentTasklet implements Tasklet {
         return this.env.getProperty(propertyName);
     }
 
-    public String encodeBasicAuth(String username, String password) {
-        String credentials = username + ":" + password;
-        return "Basic " + Base64.getEncoder().encodeToString(credentials.getBytes(StandardCharsets.UTF_8));
-    }
 
     private MomoPaymentResponse getMomoResponse(JsonObject jsonResponse) {
         MomoPaymentResponse momoPaymentResponse = new MomoPaymentResponse();

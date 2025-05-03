@@ -945,6 +945,10 @@ public class LoanWritePlatformServiceJpaRepositoryImpl implements LoanWritePlatf
     public CommandProcessingResult undoLoanDisbursal(final Long loanId, final JsonCommand command) {
 
         Loan loan = this.loanAssembler.assembleFrom(loanId);
+        if(loan.isDisbursedViaMomoPay() || loan.isDibursementPayoutCompleted()){
+            throw new GeneralPlatformDomainRuleException("error.msg.loan.is.disbursed.via.mobile.money",
+                    "Undo Loan: " + loanId + " disbursement is not allowed. Loan Account is Disbursed via Mobile Money", loanId);
+        }
         checkClientOrGroupActive(loan);
         if (loan.isChargedOff()) {
             throw new GeneralPlatformDomainRuleException("error.msg.loan.is.charged.off",

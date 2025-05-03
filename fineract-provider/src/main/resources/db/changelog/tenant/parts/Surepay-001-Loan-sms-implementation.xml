@@ -189,4 +189,11 @@
                 constraintName="uk_m_momo_loan_payment_transaction_loan_transaction_id"
                 tableName="m_momo_loan_payment_transaction"/>
     </changeSet>
+    <changeSet author="fineract" id="middleware_reference_no_to_m_loan">
+        <addColumn tableName="m_loan">
+            <column name="middleware_reference_no"  type="VARCHAR(100)">
+                <constraints nullable="true"/>
+            </column>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>
