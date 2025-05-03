@@ -44,11 +44,12 @@ import org.apache.fineract.infrastructure.configuration.domain.GlobalConfigurati
 import org.apache.fineract.infrastructure.core.exception.GeneralPlatformDomainRuleException;
 import org.apache.fineract.infrastructure.momo.data.MomoPaymentData;
 import org.apache.fineract.infrastructure.momo.data.MomoPaymentResponse;
+import org.apache.fineract.infrastructure.momo.data.MomoTransactionTypeEnum;
+import org.apache.fineract.infrastructure.momo.domain.MomoLoanPaymentTransaction;
+import org.apache.fineract.infrastructure.momo.domain.MomoLoanPaymentTransactionRepository;
 import org.apache.fineract.portfolio.loanaccount.domain.Loan;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanRepositoryWrapper;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanTransaction;
-import org.apache.fineract.infrastructure.momo.domain.MomoLoanPaymentTransaction;
-import org.apache.fineract.infrastructure.momo.domain.MomoLoanPaymentTransactionRepository;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -73,9 +74,9 @@ public class SurePayMomoPaymentIntegrationWritePlatformServiceImpl implements Su
                 .findOneByNameWithNotFoundDetection(GlobalConfigurationConstants.ENABLE_SURE_MOBILE_MONEY_PAYMENT);
 
         if (!property.isEnabled()) {
-            throw new GeneralPlatformDomainRuleException("error.msg.momo.payments.is.disabled","Surepay Mobile Money payments is disabled");
+            throw new GeneralPlatformDomainRuleException("error.msg.momo.payments.is.disabled",
+                    "Surepay Mobile Money payments is disabled");
         }
-
 
         String message = buildMessage(momoPaymentData);
 
@@ -83,11 +84,10 @@ public class SurePayMomoPaymentIntegrationWritePlatformServiceImpl implements Su
         momoPaymentData.setVendorCode(getConfigProperty("momo.vendorCode"));
         momoPaymentData.setTelecom(getConfigProperty("momo.telecom"));
 
-
         Gson gson = new GsonBuilder().create();
         String momo = gson.toJson(momoPaymentData);
 
-        HttpUrl.Builder urlBuilder = HttpUrl.parse(getConfigProperty("momo.url.payout")).newBuilder();
+        HttpUrl.Builder urlBuilder = HttpUrl.parse(getConfigProperty("momo.payout.url")).newBuilder();
         String url = urlBuilder.build().toString();
 
         OkHttpClient client = new OkHttpClient();
@@ -103,7 +103,7 @@ public class SurePayMomoPaymentIntegrationWritePlatformServiceImpl implements Su
         String resObject = response.body().string();
 
         JsonObject jsonResponse = JsonParser.parseString(resObject).getAsJsonObject();
-        if (response.isSuccessful() && jsonResponse.get("statusCode").getAsString().equals("PENDING")) {
+        if (response.isSuccessful() && jsonResponse.get("statusCode").getAsString().equals(MomoTransactionTypeEnum.PENDING.getCode())) {
             // React to the response from MiddleWare . .
             MomoPaymentResponse resBody = getMomoResponse(jsonResponse);
             log.info("Momo Message Response :=>" + resBody.toString());

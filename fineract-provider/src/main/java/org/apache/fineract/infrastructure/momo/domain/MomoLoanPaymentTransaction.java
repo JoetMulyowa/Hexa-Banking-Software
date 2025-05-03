@@ -78,6 +78,9 @@ public class MomoLoanPaymentTransaction extends AbstractAuditableWithUTCDateTime
     @Column(name = "vendor_tran_id")
     private String vendorTranId;
 
+    @Column(name = "check_transaction_status_response")
+    private String checkTransactionStatusResponse;
+
     public MomoLoanPaymentTransaction() {}
 
 }

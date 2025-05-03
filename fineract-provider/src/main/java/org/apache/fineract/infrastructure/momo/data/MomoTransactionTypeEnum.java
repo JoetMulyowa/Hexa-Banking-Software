@@ -16,17 +16,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.fineract.infrastructure.momo.domain;
+package org.apache.fineract.infrastructure.momo.data;
 
-import java.util.List;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
+import lombok.Getter;
 
-public interface MomoLoanPaymentTransactionRepository
-        extends JpaRepository<MomoLoanPaymentTransaction, Long>, JpaSpecificationExecutor<MomoLoanPaymentTransaction> {
+@Getter
+public enum MomoTransactionTypeEnum {
 
-    @Query("select trx FROM MomoLoanPaymentTransaction trx where trx.statusCode = :statusCode")
-    List<MomoLoanPaymentTransaction> findPendingMomoPayment(@Param("statusCode") String statusCode);
+    PENDING(1, "PENDING", "MomoTransactionTypeEnum.pending"), //
+    SUCCESS(2, "SUCCESS", "MomoTransactionTypeEnum.success"), //
+    FAILED(3, "FAILED", "MomoTransactionTypeEnum.failed"),;
+
+    private final Integer value;
+    private final String code;
+    private final String description;
+
+    MomoTransactionTypeEnum(final Integer value, final String code, final String description) {
+        this.value = value;
+        this.code = code;
+        this.description = description;
+    }
+
 }

@@ -458,4 +458,25 @@ public final class DateUtils {
         }
         return formatter;
     }
+
+    public static LocalDate parseLocalDateFlexible(String dateStr) {
+        if (dateStr == null || dateStr.trim().isEmpty()) {
+            return null;
+        }
+        dateStr = dateStr.trim();
+        try {
+            // Try full datetime first
+            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            return LocalDate.parse(dateStr, dtf);
+        } catch (DateTimeParseException e) {
+            // Fallback to just date
+            try {
+                DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                return LocalDate.parse(dateStr, df);
+            } catch (DateTimeParseException ex) {
+                // Could log here if needed
+                return null;
+            }
+        }
+    }
 }

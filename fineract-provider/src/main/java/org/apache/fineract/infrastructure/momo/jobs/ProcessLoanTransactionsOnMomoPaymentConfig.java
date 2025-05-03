@@ -18,10 +18,9 @@
  */
 package org.apache.fineract.infrastructure.momo.jobs;
 
-import org.apache.fineract.infrastructure.configuration.domain.ConfigurationDomainService;
 import org.apache.fineract.infrastructure.jobs.service.JobName;
 import org.apache.fineract.infrastructure.momo.domain.MomoLoanPaymentTransactionRepository;
-import org.apache.fineract.portfolio.loanaccount.service.LoanReadPlatformService;
+import org.apache.fineract.portfolio.loanaccount.domain.LoanRepositoryWrapper;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.builder.JobBuilder;
@@ -43,13 +42,9 @@ public class ProcessLoanTransactionsOnMomoPaymentConfig {
     private PlatformTransactionManager transactionManager;
 
     @Autowired
-    private ConfigurationDomainService configurationDomainService;
-
-    @Autowired
-    private LoanReadPlatformService loanReadPlatformService;
-
-    @Autowired
     private MomoLoanPaymentTransactionRepository loanPaymentTransactionRepository;
+    @Autowired
+    private LoanRepositoryWrapper loanRepositoryWrapper;
 
     @Bean
     protected Step processLoanTransactionsOnMomoPaymentTaskStep() {
@@ -65,7 +60,7 @@ public class ProcessLoanTransactionsOnMomoPaymentConfig {
 
     @Bean
     public ProcessLoanTransactionsOnMomoPaymentTasklet processLoanTransactionsOnMomoPaymentTasklet() {
-        return new ProcessLoanTransactionsOnMomoPaymentTasklet(configurationDomainService, loanReadPlatformService,loanPaymentTransactionRepository);
+        return new ProcessLoanTransactionsOnMomoPaymentTasklet(loanRepositoryWrapper, loanPaymentTransactionRepository);
     }
 
 }

@@ -478,6 +478,9 @@ public class Loan extends AbstractAuditableWithUTCDateTimeCustom<Long> {
     @Setter()
     @Column(name = "disbursement_payout_completed", nullable = false)
     private boolean dibursementPayoutCompleted = false;
+    @Setter()
+    @Column(name = "disbursement_payout_completed_date", nullable = false)
+    private LocalDate dibursementPayoutCompletedDate;
 
     public static Loan newIndividualLoanApplication(final String accountNo, final Client client, final AccountType loanType,
             final LoanProduct loanProduct, final Fund fund, final Staff officer, final CodeValue loanPurpose,

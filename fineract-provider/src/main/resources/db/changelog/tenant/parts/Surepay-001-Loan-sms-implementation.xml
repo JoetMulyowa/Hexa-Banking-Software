@@ -158,8 +158,35 @@
     <changeSet author="fineract" id="add_venderTranId_to_m_momo_loan_payment_transaction">
         <addColumn tableName="m_momo_loan_payment_transaction">
             <column name="vendor_tran_id"  type="VARCHAR(255)">
-                <constraints nullable="false"/>
+                <constraints nullable="false" />
             </column>
         </addColumn>
+    </changeSet>
+    <changeSet author="fineract" id="add_add_disbursement_payout_completed_date_to_m_loan_to_m_loan">
+        <addColumn tableName="m_loan">
+            <column name="disbursement_payout_completed_date"  type="DATETIME">
+                <constraints nullable="true"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+    <changeSet author="fineract" id="add_check_transaction_status_response_to_m_momo_loan_payment_transaction">
+        <addColumn tableName="m_momo_loan_payment_transaction">
+            <column name="check_transaction_status_response"  type="TEXT">
+                <constraints nullable="true"/>
+            </column>
+        </addColumn>
+    </changeSet>
+    <changeSet author="fineract" id="add_unique_constraint_vendor_tran_id_to_m_momo_loan_payment_transaction">
+        <addUniqueConstraint
+                columnNames="vendor_tran_id"
+                constraintName="uk_m_momo_loan_payment_transaction_vendor_tran_id"
+                tableName="m_momo_loan_payment_transaction"/>
+    </changeSet>
+    <changeSet author="fineract" id="add_unique_constraint_loan_transaction_id_to_m_momo_loan_payment_transaction">
+        <addUniqueConstraint
+                columnNames="loan_transaction_id"
+                constraintName="uk_m_momo_loan_payment_transaction_loan_transaction_id"
+                tableName="m_momo_loan_payment_transaction"/>
     </changeSet>
 </databaseChangeLog>
