@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements. See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership. The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License. You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied. See the License for the
+    specific language governing permissions and limitations
+    under the License.
+
+-->
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+    <changeSet id="create-m_sms_outbound_message" author="fineract">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="m_sms_outbound_message"/>
+            </not>
+        </preConditions>
+        <createTable tableName="m_sms_outbound_message">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="external_id" type="VARCHAR(100)"/>
+            <column name="recipient" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="message" type="TEXT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status_enum" type="INT" defaultValueNumeric="100">
+                <constraints nullable="false"/>
+            </column>
+            <column name="error_message" type="TEXT"/>
+            <column name="campaign_name" type="VARCHAR(100)"/>
+            <column name="submitted_on_date" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="delivered_on_date" type="DATETIME"/>
+            <column name="provider" type="VARCHAR(50)" defaultValue="AFRICASTALKING"/>
+            <column name="message_id" type="VARCHAR(100)"/>
+            <column name="reference_id" type="BIGINT"/>
+            <column name="reference_type" type="VARCHAR(50)"/>
+            <column name="sms_type" type="VARCHAR(50)"/>
+            <column name="message_cost" type="VARCHAR(20)"/>
+            <column name="status_code" type="VARCHAR(10)"/>
+            <column name="message_parts" type="INT"/>
+            <column name="reference_entity_type" type="VARCHAR(50)"/>
+            <column name="reference_entity_id" type="BIGINT"/>
+            <column name="created_date" type="DATETIME" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_modified_date" type="DATETIME" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_by" type="BIGINT">
+                <constraints foreignKeyName="FK_sms_created_by" references="m_appuser(id)"/>
+            </column>
+            <column name="last_modified_by" type="BIGINT">
+                <constraints foreignKeyName="FK_sms_modified_by" references="m_appuser(id)"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="create-sms-outbound-message-indices" author="fineract">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <indexExists tableName="m_sms_outbound_message" indexName="idx_sms_recipient"/>
+            </not>
+        </preConditions>
+        <createIndex tableName="m_sms_outbound_message" indexName="idx_sms_recipient">
+            <column name="recipient"/>
+        </createIndex>
+        <createIndex tableName="m_sms_outbound_message" indexName="idx_sms_status">
+            <column name="status_enum"/>
+        </createIndex>
+        <createIndex tableName="m_sms_outbound_message" indexName="idx_sms_reference">
+            <column name="reference_entity_type"/>
+            <column name="reference_entity_id"/>
+        </createIndex>
+        <createIndex tableName="m_sms_outbound_message" indexName="idx_sms_external_id">
+            <column name="external_id"/>
+        </createIndex>
+        <createIndex tableName="m_sms_outbound_message" indexName="idx_sms_submitted_date">
+            <column name="submitted_on_date"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="joetmulyowa@gmail.com" id="add-nin-to-client-table">
+        <addColumn tableName="m_client">
+            <column name="nin" type="VARCHAR(100)"/>
+        </addColumn>
+    </changeSet>
+</databaseChangeLog>

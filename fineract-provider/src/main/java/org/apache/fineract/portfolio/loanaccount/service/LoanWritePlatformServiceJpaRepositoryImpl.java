@@ -106,10 +106,12 @@ import org.apache.fineract.infrastructure.event.business.domain.loan.transaction
 import org.apache.fineract.infrastructure.event.business.domain.loan.transaction.LoanWrittenOffPreBusinessEvent;
 import org.apache.fineract.infrastructure.event.business.service.BusinessEventNotifierService;
 import org.apache.fineract.infrastructure.momo.data.MomoPaymentData;
-import org.apache.fineract.infrastructure.momo.service.SurePayMomoPaymentIntegrationWritePlatformServiceImpl;
+import org.apache.fineract.infrastructure.momo.service.MomoPaymentIntegrationWritePlatformService;
+import org.apache.fineract.infrastructure.momo.service.MomoPaymentProviderFactory;
+import org.apache.fineract.infrastructure.momo.service.YoPaymentRepaymentIntegrationService;
 import org.apache.fineract.infrastructure.security.service.PlatformSecurityContext;
 import org.apache.fineract.notification.data.SmsTypeEnum;
-import org.apache.fineract.notification.service.SMSNotificationWritePlatformServiceImpl;
+import org.apache.fineract.notification.service.SmsNotificationWritePlatformService;
 import org.apache.fineract.organisation.holiday.domain.Holiday;
 import org.apache.fineract.organisation.holiday.domain.HolidayRepositoryWrapper;
 import org.apache.fineract.organisation.monetary.domain.MonetaryCurrency;
@@ -285,8 +287,8 @@ public class LoanWritePlatformServiceJpaRepositoryImpl implements LoanWritePlatf
     private final LoanScheduleService loanScheduleService;
     private final LoanChargeValidator loanChargeValidator;
     private final LoanOfficerService loanOfficerService;
-    private final SMSNotificationWritePlatformServiceImpl smsNotificationWritePlatformService;
-    private final SurePayMomoPaymentIntegrationWritePlatformServiceImpl payments;
+    private final SmsNotificationWritePlatformService smsNotificationWritePlatformService;
+    private final MomoPaymentProviderFactory momoPaymentProviderFactory;
 
     @Transactional
     @Override
@@ -555,7 +557,9 @@ public class LoanWritePlatformServiceJpaRepositoryImpl implements LoanWritePlatf
 
         // MOMO Payments
         assert paymentDetail != null;
-        if (paymentDetail.getPaymentType().getCodeName().equals("SURE_PAY_MOMO_PAYMENT")) {
+        if (paymentDetail.getPaymentType().getCodeName().equals("SURE_PAY_MOMO_PAYMENT")
+                || paymentDetail.getPaymentType().getCodeName().equals("YO_PAYMENT_MOMO_PAYMENT")) {
+
             LocalDate today = DateUtils.getLocalDateOfTenant();
             if (actualDisbursementDate != null && DateUtils.isBefore(actualDisbursementDate, today)) {
                 final String errorMessage = "The date on which a loan is disbursed cannot be before its Today's date: " + today;
@@ -564,7 +568,7 @@ public class LoanWritePlatformServiceJpaRepositoryImpl implements LoanWritePlatf
             }
             if (!loan.getCurrency().getCode().equals("UGX")) {
                 throw new GeneralPlatformDomainRuleException("error.msg.momo.payment.currency.not.supported",
-                        "Surepay Momo payment is not supported for this currency");
+                        "Mobile money payment is not supported for this currency");
             }
 
             try {
@@ -594,14 +598,34 @@ public class LoanWritePlatformServiceJpaRepositoryImpl implements LoanWritePlatf
 
     private void integrateMomoPayments(Loan loan, LocalDate actualDisbursementDate, BigDecimal amount, LoanTransaction transaction)
             throws IOException {
-        // -Integrate with Momo Payments
-        log.info("Loan-Tx-->" + transaction.getId());
+        // Get the payment type code from the transaction's payment detail
+        String paymentTypeCode = transaction.getPaymentDetail().getPaymentType().getCodeName();
+        // Integrate with Momo Payments using the actual payment type code
+        integrateMomoPayments(loan, actualDisbursementDate, amount, transaction, paymentTypeCode);
+    }
+
+    private void integrateMomoPayments(Loan loan, LocalDate actualDisbursementDate, BigDecimal amount, LoanTransaction transaction,
+            String paymentTypeCode) throws IOException {
+        log.info("Loan-Tx-->" + transaction.getId() + ", Payment Type: " + paymentTypeCode);
 
         Client client = loan.getClient();
+        if (client == null) {
+            throw new GeneralPlatformDomainRuleException("error.msg.loan.client.not.found", "Client is required for mobile money payments");
+        }
+
+        String mobileNo = client.getMobileNo();
+        if (mobileNo == null || mobileNo.trim().isEmpty()) {
+            throw new GeneralPlatformDomainRuleException("error.msg.client.mobile.number.missing",
+                    "Client mobile number is required for mobile money payments. Please update client details with a valid mobile number.");
+        }
+
         MomoPaymentData momoPaymentData = new MomoPaymentData(client.getMobileNo(), amount, "MOMO", "DISBURSEMENTS", "UGX",
                 client.getDisplayName(), DateUtils.format(actualDisbursementDate), loan.getAccountNumber() + transaction.getId(),
                 "Loan Disbursement " + loan.getAccountNumber());
-        payments.payOut(momoPaymentData, loan, transaction);
+
+        // Get the appropriate payment provider based on the payment type code
+        MomoPaymentIntegrationWritePlatformService provider = momoPaymentProviderFactory.getProvider(paymentTypeCode);
+        provider.payOut(momoPaymentData, loan, transaction);
     }
 
     private void createNote(Loan loan, JsonCommand command, Map<String, Object> changes) {
@@ -1327,6 +1351,21 @@ public class LoanWritePlatformServiceJpaRepositoryImpl implements LoanWritePlatf
         loan = loanTransaction.getLoan();
         this.loanAccountDomainService.updateAndSaveLoanCollateralTransactionsForIndividualAccounts(loan, loanTransaction);
 
+        // Process the repayment through mobile money if a supported payment type is used
+        if (paymentDetail != null && paymentDetail.getPaymentType() != null) {
+            String paymentTypeCode = paymentDetail.getPaymentType().getCodeName();
+            if ("YO_PAYMENT_MOMO_PAYMENT".equals(paymentTypeCode)) {
+                try {
+                    integrateRepaymentWithMomoPayment(loan, transactionDate, transactionAmount, loanTransaction, paymentTypeCode);
+                    log.info("Yo Payment mobile money repayment integration completed successfully for loan: {}, transaction: {}",
+                            loan.getId(), loanTransaction.getId());
+                } catch (IOException e) {
+                    log.error("Error processing mobile money repayment: {}", e.getMessage(), e);
+                    throw new RuntimeException("Error processing mobile money repayment: " + e.getMessage(), e);
+                }
+            }
+        }
+
         if (loan.getStatus().isClosed()) {
             smsNotificationWritePlatformService.processSmsNotification(loan, SmsTypeEnum.LOAN_CLOSED, loanTransaction);
         }
@@ -1341,6 +1380,47 @@ public class LoanWritePlatformServiceJpaRepositoryImpl implements LoanWritePlatf
                 .withGroupId(loan.getGroupId()) //
                 .with(changes) //
                 .build();
+    }
+
+    /**
+     * Integrate the loan repayment with mobile money payment provider (Yo Payment)
+     *
+     * @param loan
+     *            the loan
+     * @param transactionDate
+     *            the transaction date
+     * @param amount
+     *            the transaction amount
+     * @param transaction
+     *            the loan transaction
+     * @param paymentTypeCode
+     *            the payment type code
+     * @throws IOException
+     *             if an error occurs during payment processing
+     */
+    private void integrateRepaymentWithMomoPayment(Loan loan, LocalDate transactionDate, BigDecimal amount, LoanTransaction transaction,
+            String paymentTypeCode) throws IOException {
+        log.info("Processing mobile money repayment for loan: {}, transaction: {}", loan.getId(), transaction.getId());
+
+        Client client = loan.getClient();
+        if (client == null) {
+            throw new GeneralPlatformDomainRuleException("error.msg.loan.client.not.found", "Client is required for mobile money payments");
+        }
+
+        String mobileNo = client.getMobileNo();
+        if (mobileNo == null || mobileNo.trim().isEmpty()) {
+            throw new GeneralPlatformDomainRuleException("error.msg.client.mobile.number.missing",
+                    "Client mobile number is required for mobile money payments. Please update client details with a valid mobile number.");
+        }
+
+        // Create MomoPaymentData for the repayment
+        MomoPaymentData momoPaymentData = new MomoPaymentData(client.getMobileNo(), amount, "MOMO", "REPAYMENT", "UGX",
+                client.getDisplayName(), DateUtils.format(transactionDate), "LOAN-REPAY-" + loan.getId() + "-" + transaction.getId(),
+                "Loan Repayment " + loan.getAccountNumber());
+
+        // Get the appropriate payment provider for repayments based on the payment type code
+        YoPaymentRepaymentIntegrationService provider = momoPaymentProviderFactory.getRepaymentProvider(paymentTypeCode);
+        provider.processRepayment(momoPaymentData, loan, transaction);
     }
 
     @Transactional
@@ -1395,6 +1475,23 @@ public class LoanWritePlatformServiceJpaRepositoryImpl implements LoanWritePlatf
                         bulkRepaymentCommand.getTransactionDate(), singleLoanRepaymentCommand.getTransactionAmount(), paymentDetail,
                         bulkRepaymentCommand.getNote(), externalId, isRecoveryRepayment, chargeRefundChargeType, isAccountTransfer,
                         holidayDetailDTO, isHolidayValidationDone);
+
+                // Process the repayment through mobile money if a supported payment type is used
+                if (paymentDetail != null && paymentDetail.getPaymentType() != null) {
+                    String paymentTypeCode = paymentDetail.getPaymentType().getCodeName();
+                    if ("YO_PAYMENT_MOMO_PAYMENT".equals(paymentTypeCode)) {
+                        try {
+                            integrateRepaymentWithMomoPayment(loan, bulkRepaymentCommand.getTransactionDate(),
+                                    singleLoanRepaymentCommand.getTransactionAmount(), loanTransaction, paymentTypeCode);
+                            log.info("Yo Payment mobile money repayment integration completed successfully for loan: {}, transaction: {}",
+                                    loan.getId(), loanTransaction.getId());
+                        } catch (IOException e) {
+                            log.error("Error processing mobile money repayment: {}", e.getMessage(), e);
+                            throw new RuntimeException("Error processing mobile money repayment: " + e.getMessage(), e);
+                        }
+                    }
+                }
+
                 transactionIds.add(loanTransaction.getId());
             }
         }
@@ -3809,6 +3906,7 @@ public class LoanWritePlatformServiceJpaRepositoryImpl implements LoanWritePlatf
                 locale);
         final LocalDate expectedDisbursementDate = command
                 .localDateValueOfParameterNamed(LoanApiConstants.updatedDisbursementDateParameterName);
+        // Fix the variable name here from disburseDetails to disbursementDetails
         disbursementDetails.updateExpectedDisbursementDateAndAmount(expectedDisbursementDate, principal);
         actualChanges.put(LoanApiConstants.expectedDisbursementDateParameterName,
                 command.stringValueOfParameterNamed(LoanApiConstants.expectedDisbursementDateParameterName));

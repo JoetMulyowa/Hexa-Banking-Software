@@ -23,7 +23,23 @@ import org.apache.fineract.infrastructure.momo.data.MomoPaymentData;
 import org.apache.fineract.portfolio.loanaccount.domain.Loan;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanTransaction;
 
-public interface SurePayMomoPaymentIntegrationWritePlatformService {
+/**
+ * Interface for SurePay Mobile Money Integration
+ */
+public interface SurePayMomoPaymentIntegrationWritePlatformService extends MomoPaymentIntegrationWritePlatformService {
 
+    /**
+     * Process a payout (withdrawal) through SurePay's Momo API
+     *
+     * @param momoPaymentData
+     *            the payment data object
+     * @param loan
+     *            the loan object
+     * @param loanTransaction
+     *            the loan transaction
+     * @throws IOException
+     *             if there's an issue with API communication
+     */
+    @Override
     void payOut(MomoPaymentData momoPaymentData, Loan loan, LoanTransaction loanTransaction) throws IOException;
 }

@@ -27,6 +27,12 @@ apply plugin: 'io.swagger.core.v3.swagger-gradle-plugin'
 apply plugin: 'com.google.cloud.tools.jib'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'se.thinkcode.cucumber-runner'
+repositories {
+	maven { url "${rootProject.projectDir}/libs" }
+    maven { url 'https://repo1.maven.org/maven2' }
+    maven { url "https://nexus.pentaho.org/content/groups/omni/" }
+    maven { url 'https://repo.orl.eng.hitachivantara.com/artifactory/pnt-mvn/' }
+}
 
 check.dependsOn('cucumber')
 

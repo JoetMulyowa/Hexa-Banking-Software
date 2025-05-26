@@ -18,173 +18,46 @@
  */
 package org.apache.fineract.infrastructure.momo.service;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.nio.charset.StandardCharsets;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.util.Base64;
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.HttpUrl;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
 import org.apache.fineract.infrastructure.configuration.api.GlobalConfigurationConstants;
-import org.apache.fineract.infrastructure.configuration.domain.GlobalConfigurationProperty;
 import org.apache.fineract.infrastructure.configuration.domain.GlobalConfigurationRepositoryWrapper;
-import org.apache.fineract.infrastructure.core.exception.GeneralPlatformDomainRuleException;
 import org.apache.fineract.infrastructure.momo.data.MomoPaymentData;
-import org.apache.fineract.infrastructure.momo.data.MomoPaymentResponse;
-import org.apache.fineract.infrastructure.momo.data.MomoTransactionTypeEnum;
 import org.apache.fineract.infrastructure.momo.domain.MomoLoanPaymentTransaction;
 import org.apache.fineract.infrastructure.momo.domain.MomoLoanPaymentTransactionRepository;
-import org.apache.fineract.portfolio.loanaccount.domain.Loan;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanRepositoryWrapper;
-import org.apache.fineract.portfolio.loanaccount.domain.LoanTransaction;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Service;
 
-@RequiredArgsConstructor
+@Service
 @Slf4j
-public class SurePayMomoPaymentIntegrationWritePlatformServiceImpl implements SurePayMomoPaymentIntegrationWritePlatformService {
+public class SurePayMomoPaymentIntegrationWritePlatformServiceImpl extends MomoPaymentIntegrationWritePlatformServiceImpl
+        implements SurePayMomoPaymentIntegrationWritePlatformService {
+
+    private final MomoService momoService;
 
     @Autowired
-    private Environment env;
-    @Autowired
-    private final GlobalConfigurationRepositoryWrapper configurationRepositoryWrapper;
-    public static final String FORM_URL_CONTENT_TYPE = "application/json";
-    private static final String HMAC_SHA512 = "HmacSHA512";
-    private final LoanRepositoryWrapper loanRepositoryWrapper;
-    private final MomoLoanPaymentTransactionRepository loanPaymentTransactionRepository;
+    public SurePayMomoPaymentIntegrationWritePlatformServiceImpl(GlobalConfigurationRepositoryWrapper configurationRepositoryWrapper,
+            LoanRepositoryWrapper loanRepositoryWrapper, MomoLoanPaymentTransactionRepository loanPaymentTransactionRepository,
+            SurePayMomoService momoService) {
+        super(configurationRepositoryWrapper, loanRepositoryWrapper, loanPaymentTransactionRepository);
+        this.momoService = momoService;
+    }
 
     @Override
-    public void payOut(MomoPaymentData momoPaymentData, Loan loan, LoanTransaction loanTransaction) throws IOException {
-
-        final GlobalConfigurationProperty property = this.configurationRepositoryWrapper
-                .findOneByNameWithNotFoundDetection(GlobalConfigurationConstants.ENABLE_SURE_MOBILE_MONEY_PAYMENT);
-
-        if (!property.isEnabled()) {
-            throw new GeneralPlatformDomainRuleException("error.msg.momo.payments.is.disabled",
-                    "Surepay Mobile Money payments is disabled");
-        }
-
-        String message = buildMessage(momoPaymentData);
-
-        momoPaymentData.setTranSignature(generateSignature(message, getConfigProperty("momo.secret")));
-        momoPaymentData.setVendorCode(getConfigProperty("momo.vendorCode"));
-        momoPaymentData.setTelecom(getConfigProperty("momo.telecom"));
-
-        Gson gson = new GsonBuilder().create();
-        String momo = gson.toJson(momoPaymentData);
-
-        HttpUrl.Builder urlBuilder = HttpUrl.parse(getConfigProperty("momo.payout.url")).newBuilder();
-        String url = urlBuilder.build().toString();
-
-        OkHttpClient client = new OkHttpClient();
-        Response response = null;
-
-        RequestBody formBody = RequestBody.create(MediaType.parse(FORM_URL_CONTENT_TYPE), momo);
-
-        Request request = new Request.Builder().url(url)
-                .header("Authorization", encodeBasicAuth(getConfigProperty("momo.username"), getConfigProperty("momo.password")))
-                .post(formBody).build();
-
-        response = client.newCall(request).execute();
-        String resObject = response.body().string();
-
-        JsonObject jsonResponse = JsonParser.parseString(resObject).getAsJsonObject();
-        if (response.isSuccessful() && jsonResponse.get("statusCode").getAsString().equals(MomoTransactionTypeEnum.PENDING.getCode())) {
-            // React to the response from MiddleWare . .
-            MomoPaymentResponse resBody = getMomoResponse(jsonResponse);
-            log.info("Momo Message Response :=>" + resBody.toString());
-
-            loan.setDisbursedViaMomoPay(Boolean.TRUE);
-            loan.setDisbursementPayoutCompleted(Boolean.FALSE);
-            loan.setMiddlewareReferenceNo(resBody.getTranReference());
-            this.loanRepositoryWrapper.saveAndFlush(loan);
-
-            MomoLoanPaymentTransaction momopay = new MomoLoanPaymentTransaction();
-
-            momopay.setLoan(loan);
-            momopay.setLoanTransaction(loanTransaction);
-            momopay.setMiddlewareReferenceNo(resBody.getTranReference());
-            momopay.setDateOf(loanTransaction.getTransactionDate());
-            momopay.setAmount(loanTransaction.getAmount());
-            momopay.setReversed(Boolean.FALSE);
-            momopay.setTranCharge(BigDecimal.valueOf(Long.parseLong(resBody.getTranCharge())));
-            momopay.setStatusCode(resBody.getStatusCode());
-            momopay.setStatusDesc(resBody.getStatusDesc());
-            momopay.setRequestBody(momo);
-            momopay.setResponseBody(resObject);
-            momopay.setVendorTranId(resBody.getVendorTranId());
-            loanPaymentTransactionRepository.saveAndFlush(momopay);
-
-        } else {
-            log.error("Failed To Make Momo Payout :" + resObject);
-            throw new GeneralPlatformDomainRuleException("error.msg.momo.integration.payout.failed",
-                    "Failed To Make Momo Payout :" + jsonResponse.get("statusDesc"));
-        }
-
+    protected void processPayment(MomoPaymentData momoPaymentData, MomoLoanPaymentTransaction momoLoanPaymentTransaction)
+            throws IOException {
+        this.momoService.handle(momoPaymentData, momoLoanPaymentTransaction);
     }
 
-    private MomoPaymentResponse getMomoResponse(JsonObject jsonResponse) {
-        MomoPaymentResponse momoPaymentResponse = new MomoPaymentResponse();
-        momoPaymentResponse.setVendorTranId(jsonResponse.get("vendorTranId").getAsString());
-        momoPaymentResponse.setTranReference(jsonResponse.get("tranReference").getAsString());
-        momoPaymentResponse.setStatusCode(jsonResponse.get("statusCode").getAsString());
-        momoPaymentResponse.setStatusDesc(jsonResponse.get("statusDesc").getAsString());
-        momoPaymentResponse.setProcessorId(jsonResponse.get("processorId").getAsString());
-        momoPaymentResponse.setTranCharge(jsonResponse.get("tranCharge").getAsString());
-        return momoPaymentResponse;
+    @Override
+    protected boolean isEnabled() {
+        return configurationRepositoryWrapper
+                .findOneByNameWithNotFoundDetection(GlobalConfigurationConstants.ENABLE_SURE_MOBILE_MONEY_PAYMENT).isEnabled();
     }
 
-    @NotNull
-    private static String buildMessage(MomoPaymentData momoPaymentData) {
-        String accountNumber = momoPaymentData.getAccountNumber();
-        String accountName = momoPaymentData.getAccountName();
-        String tranType = momoPaymentData.getTranType();
-        String tranAmount = momoPaymentData.getTranAmount().toString();
-        String paymentDate = momoPaymentData.getPaymentDate().toString();
-        String vendorCode = momoPaymentData.getVendorCode();
-        String vendorTranId = momoPaymentData.getVendorTranId();
-        return accountNumber + accountName + tranAmount + tranType + paymentDate + vendorCode + vendorTranId;
+    @Override
+    public String getPaymentTypeCode() {
+        return "SURE_PAY_MOMO_PAYMENT";
     }
-
-    public String generateSignature(String requestParams, String merchantSecretKey) {
-        byte[] secretKeyBytes = merchantSecretKey.getBytes(StandardCharsets.UTF_8);
-        Mac hmacSha512 = null;
-        try {
-            hmacSha512 = Mac.getInstance(HMAC_SHA512);
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
-        SecretKeySpec secretKeySpec = new SecretKeySpec(secretKeyBytes, HMAC_SHA512);
-        try {
-            hmacSha512.init(secretKeySpec);
-        } catch (InvalidKeyException e) {
-            throw new RuntimeException(e);
-        }
-        byte[] macData = hmacSha512.doFinal(requestParams.getBytes(StandardCharsets.UTF_8));
-        return Base64.getEncoder().encodeToString(macData);
-    }
-
-    private String getConfigProperty(String propertyName) {
-        return this.env.getProperty(propertyName);
-    }
-
-    public String encodeBasicAuth(String username, String password) {
-        String credentials = username + ":" + password;
-        return "Basic " + Base64.getEncoder().encodeToString(credentials.getBytes(StandardCharsets.UTF_8));
-    }
-
 }

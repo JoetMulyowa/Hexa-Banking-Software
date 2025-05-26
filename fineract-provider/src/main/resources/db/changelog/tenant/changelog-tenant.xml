@@ -186,4 +186,8 @@
     <include file="parts/0165_add_credited_interest_to_instalment.xml" relativeToChangelogFile="true" />
     <include file="parts/0166_transaction_summary_with_asset_owner_report_charge_adjustment_fix.xml" relativeToChangelogFile="true" />
     <include file="parts/Surepay-001-Loan-sms-implementation.xml" relativeToChangelogFile="true" />
+    <include file="parts/0167_YoPayment-momo-integration.xml" relativeToChangelogFile="true" />
+    <include file="parts/0168_YoPayment-repayment-transaction-table.xml" relativeToChangelogFile="true" />
+    <include file="parts/0169_add_sms_outbound_message_tracking_table.xml" relativeToChangelogFile="true" />
+    <include file="parts/0170_YoPayment-savings-deposit-transaction-table.xml" relativeToChangelogFile="true" />
 </databaseChangeLog>

@@ -364,7 +364,7 @@ public class SavingsConfiguration {
             EntityDatatableChecksWritePlatformService entityDatatableChecksWritePlatformService, AppUserRepositoryWrapper appuserRepository,
             StandingInstructionRepository standingInstructionRepository, BusinessEventNotifierService businessEventNotifierService,
             GSIMRepositoy gsimRepository, SavingsAccountInterestPostingService savingsAccountInterestPostingService,
-            ErrorHandler errorHandler) {
+            ErrorHandler errorHandler, org.apache.fineract.infrastructure.momo.service.YoPaymentSavingsDepositIntegrationService yoPaymentSavingsDepositIntegrationService) {
         return new SavingsAccountWritePlatformServiceJpaRepositoryImpl(context, fromApiJsonDeserializer, savingAccountRepositoryWrapper,
                 staffRepository, savingsAccountTransactionRepository, savingAccountAssembler, savingsAccountTransactionDataValidator,
                 savingsAccountChargeDataValidator, paymentDetailWritePlatformService, journalEntryWritePlatformService,
@@ -372,7 +372,7 @@ public class SavingsConfiguration {
                 chargeRepository, savingsAccountChargeRepository, holidayRepository, workingDaysRepository, configurationDomainService,
                 depositAccountOnHoldTransactionRepository, entityDatatableChecksWritePlatformService, appuserRepository,
                 standingInstructionRepository, businessEventNotifierService, gsimRepository, savingsAccountInterestPostingService,
-                errorHandler);
+                errorHandler, yoPaymentSavingsDepositIntegrationService);
     }
 
     @Bean

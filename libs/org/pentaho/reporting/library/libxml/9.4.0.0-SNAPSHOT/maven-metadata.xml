@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata modelVersion="1.1.0">
+  <groupId>org.pentaho.reporting.library</groupId>
+  <artifactId>libxml</artifactId>
+  <version>9.4.0.0-SNAPSHOT</version>
+  <versioning>
+    <snapshot>
+      <timestamp>20240405.132832</timestamp>
+      <buildNumber>1</buildNumber>
+    </snapshot>
+    <lastUpdated>20240405132901</lastUpdated>
+    <snapshotVersions>
+      <snapshotVersion>
+        <classifier>sources</classifier>
+        <extension>jar</extension>
+        <value>9.4.0.0-20240405.132832-1</value>
+        <updated>20240405132832</updated>
+      </snapshotVersion>
+      <snapshotVersion>
+        <extension>jar</extension>
+        <value>9.4.0.0-20240405.132832-1</value>
+        <updated>20240405132832</updated>
+      </snapshotVersion>
+      <snapshotVersion>
+        <extension>pom</extension>
+        <value>9.4.0.0-20240405.132832-1</value>
+        <updated>20240405132832</updated>
+      </snapshotVersion>
+    </snapshotVersions>
+  </versioning>
+</metadata>

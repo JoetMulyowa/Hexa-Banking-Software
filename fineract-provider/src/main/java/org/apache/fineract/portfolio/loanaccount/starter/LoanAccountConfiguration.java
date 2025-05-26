@@ -18,13 +18,13 @@
  */
 package org.apache.fineract.portfolio.loanaccount.starter;
 
+import java.util.List;
 import org.apache.fineract.accounting.journalentry.service.JournalEntryWritePlatformService;
 import org.apache.fineract.cob.service.LoanAccountLockService;
 import org.apache.fineract.infrastructure.accountnumberformat.domain.AccountNumberFormatRepositoryWrapper;
 import org.apache.fineract.infrastructure.codes.domain.CodeValueRepositoryWrapper;
 import org.apache.fineract.infrastructure.codes.service.CodeValueReadPlatformService;
 import org.apache.fineract.infrastructure.configuration.domain.ConfigurationDomainService;
-import org.apache.fineract.infrastructure.configuration.domain.GlobalConfigurationRepositoryWrapper;
 import org.apache.fineract.infrastructure.core.exception.ErrorHandler;
 import org.apache.fineract.infrastructure.core.serialization.FromJsonHelper;
 import org.apache.fineract.infrastructure.core.service.ExternalIdFactory;
@@ -32,11 +32,12 @@ import org.apache.fineract.infrastructure.core.service.PaginationHelper;
 import org.apache.fineract.infrastructure.core.service.database.DatabaseSpecificSQLGenerator;
 import org.apache.fineract.infrastructure.dataqueries.service.EntityDatatableChecksWritePlatformService;
 import org.apache.fineract.infrastructure.event.business.service.BusinessEventNotifierService;
-import org.apache.fineract.infrastructure.momo.domain.MomoLoanPaymentTransactionRepository;
-import org.apache.fineract.infrastructure.momo.service.SurePayMomoPaymentIntegrationWritePlatformServiceImpl;
+import org.apache.fineract.infrastructure.momo.service.MomoPaymentIntegrationWritePlatformService;
+import org.apache.fineract.infrastructure.momo.service.MomoPaymentProviderFactory;
+import org.apache.fineract.infrastructure.momo.service.YoPaymentRepaymentIntegrationService;
 import org.apache.fineract.infrastructure.security.service.PlatformSecurityContext;
 import org.apache.fineract.infrastructure.security.utils.ColumnValidator;
-import org.apache.fineract.notification.service.SMSNotificationWritePlatformServiceImpl;
+import org.apache.fineract.notification.service.SmsNotificationWritePlatformService;
 import org.apache.fineract.organisation.holiday.domain.HolidayRepository;
 import org.apache.fineract.organisation.holiday.domain.HolidayRepositoryWrapper;
 import org.apache.fineract.organisation.monetary.domain.ApplicationCurrencyRepositoryWrapper;
@@ -199,7 +200,7 @@ public class LoanAccountConfiguration {
             LoanRepository loanRepository, GSIMReadPlatformService gsimReadPlatformService,
             LoanLifecycleStateMachine defaultLoanLifecycleStateMachine, LoanAccrualsProcessingService loanAccrualsProcessingService,
             LoanDownPaymentTransactionValidator loanDownPaymentTransactionValidator, LoanScheduleService loanScheduleService,
-            SMSNotificationWritePlatformServiceImpl smsNotificationWritePlatformService) {
+            SmsNotificationWritePlatformService smsNotificationWritePlatformService) {
         return new LoanApplicationWritePlatformServiceJpaRepositoryImpl(context, loanApplicationTransitionValidator,
                 loanApplicationValidator, loanRepositoryWrapper, noteRepository, loanAssembler,
                 loanRepaymentScheduleTransactionProcessorFactory, calendarRepository, calendarInstanceRepository, savingsAccountRepository,
@@ -389,8 +390,8 @@ public class LoanAccountConfiguration {
             LoanOfficerValidator loanOfficerValidator, LoanDownPaymentTransactionValidator loanDownPaymentTransactionValidator,
             LoanDisbursementService loanDisbursementService, LoanScheduleService loanScheduleService,
             LoanChargeValidator loanChargeValidator, LoanOfficerService loanOfficerService,
-            SMSNotificationWritePlatformServiceImpl smsNotificationWritePlatformService,
-            SurePayMomoPaymentIntegrationWritePlatformServiceImpl momoPaymentIntegrationWritePlatformService) {
+            SmsNotificationWritePlatformService smsNotificationWritePlatformService,
+            MomoPaymentProviderFactory momoPaymentProviderFactory) {
         return new LoanWritePlatformServiceJpaRepositoryImpl(context, loanTransactionValidator, loanUpdateCommandFromApiJsonDeserializer,
                 loanRepositoryWrapper, loanAccountDomainService, noteRepository, loanTransactionRepository,
                 loanTransactionRelationRepository, loanAssembler, journalEntryWritePlatformService, calendarInstanceRepository,
@@ -405,7 +406,7 @@ public class LoanAccountConfiguration {
                 loanAccrualTransactionBusinessEventService, errorHandler, loanDownPaymentHandlerService, accountTransferRepository,
                 loanTransactionAssembler, loanAccrualsProcessingService, loanOfficerValidator, loanDownPaymentTransactionValidator,
                 loanDisbursementService, loanScheduleService, loanChargeValidator, loanOfficerService, smsNotificationWritePlatformService,
-                momoPaymentIntegrationWritePlatformService);
+                momoPaymentProviderFactory);
     }
 
     @Bean
@@ -478,19 +479,12 @@ public class LoanAccountConfiguration {
                 loanAccountDomainService, accountTransfersService, replayedTransactionBusinessEventService);
     }
 
-    @Bean
-    @ConditionalOnMissingBean(SMSNotificationWritePlatformServiceImpl.class)
-    public SMSNotificationWritePlatformServiceImpl smsNotificationWritePlatformService(
-            GlobalConfigurationRepositoryWrapper configurationRepositoryWrapper) {
-        return new SMSNotificationWritePlatformServiceImpl(configurationRepositoryWrapper);
-    }
+    // Bean removed as we're only using Africa's Talking implementation
 
     @Bean
-    @ConditionalOnMissingBean(SurePayMomoPaymentIntegrationWritePlatformServiceImpl.class)
-    public SurePayMomoPaymentIntegrationWritePlatformServiceImpl surePayMomoPaymentIntegrationWritePlatformService(
-            GlobalConfigurationRepositoryWrapper configurationRepositoryWrapper, LoanRepositoryWrapper loanRepositoryWrapper,
-            MomoLoanPaymentTransactionRepository loanPaymentTransactionRepository) {
-        return new SurePayMomoPaymentIntegrationWritePlatformServiceImpl(configurationRepositoryWrapper, loanRepositoryWrapper,
-                loanPaymentTransactionRepository);
+    @ConditionalOnMissingBean(MomoPaymentProviderFactory.class)
+    public MomoPaymentProviderFactory momoPaymentProviderFactory(List<MomoPaymentIntegrationWritePlatformService> momoPaymentProviders,
+            List<YoPaymentRepaymentIntegrationService> yoPaymentRepaymentProviders) {
+        return new MomoPaymentProviderFactory(momoPaymentProviders, yoPaymentRepaymentProviders);
     }
 }

@@ -165,6 +165,8 @@ public class SavingsAccountWritePlatformServiceJpaRepositoryImpl implements Savi
     private final GSIMRepositoy gsimRepository;
     private final SavingsAccountInterestPostingService savingsAccountInterestPostingService;
     private final ErrorHandler errorHandler;
+    // Add YoPaymentSavingsDepositIntegrationService
+    private final org.apache.fineract.infrastructure.momo.service.YoPaymentSavingsDepositIntegrationService yoPaymentSavingsDepositIntegrationService;
 
     @Transactional
     @Override
@@ -297,8 +299,59 @@ public class SavingsAccountWritePlatformServiceJpaRepositoryImpl implements Savi
         final LocalDate transactionDate = command.localDateValueOfParameterNamed("transactionDate");
         final BigDecimal transactionAmount = command.bigDecimalValueOfParameterNamed("transactionAmount");
 
-        this.savingsAccountTransactionDataValidator.validateTransactionWithPivotDate(transactionDate, account);
+        // Check if this is a Yo Payment transaction (payment type 101)
+        if (command.parameterExists("paymentTypeId")) {
+            Long paymentTypeId = command.longValueOfParameterNamed("paymentTypeId");
+            log.info("Processing savings deposit for savingsId: {}, paymentTypeId: {}, amount: {}, mobile: {}", 
+                savingsId, paymentTypeId, transactionAmount, command.stringValueOfParameterNamed("accountNumber"));
+            
+            // If payment type is YO_PAYMENT_MOMO_PAYMENT (101), route to Yo Payment integration
+            if (paymentTypeId != null && paymentTypeId == 101L) {
+                log.info("Routing to Yo Payment mobile money deposit for savingsId: {}", savingsId);
+                try {
+                    // Create MomoPaymentData from command
+                    org.apache.fineract.infrastructure.momo.data.MomoPaymentData momoPaymentData = new org.apache.fineract.infrastructure.momo.data.MomoPaymentData();
+                    momoPaymentData.setAmount(transactionAmount);
+                    // Mobile number is stored in accountNumber field in the request
+                    momoPaymentData.setMobileNumber(command.stringValueOfParameterNamed("accountNumber"));
+                    momoPaymentData.setNote(command.stringValueOfParameterNamed("note"));
+                    
+                    // Process the deposit via Yo Payment integration
+                    org.apache.fineract.portfolio.savings.domain.SavingsAccountTransaction deposit = 
+                        this.yoPaymentSavingsDepositIntegrationService.processDeposit(momoPaymentData, account);
+                    
+                    if (deposit != null) {
+                        // If transaction was processed immediately
+                        return new CommandProcessingResultBuilder()
+                            .withEntityId(deposit.getId())
+                            .withOfficeId(account.officeId())
+                            .withClientId(account.clientId())
+                            .withGroupId(account.groupId())
+                            .withSavingsId(savingsId)
+                            .build();
+                    } else {
+                        // If transaction is pending (will be completed via webhook)
+                        return new CommandProcessingResultBuilder()
+                            .withEntityId(null)
+                            .withOfficeId(account.officeId())
+                            .withClientId(account.clientId())
+                            .withGroupId(account.groupId())
+                            .withSavingsId(savingsId)
+                            .build();
+                    }
+                } catch (java.io.IOException e) {
+                    // Log the error and throw a platform exception
+                    log.error("Error processing Yo Payment deposit: {}", e.getMessage(), e);
+                    throw new org.apache.fineract.infrastructure.core.exception.PlatformApiDataValidationException(
+                        "error.msg.yo.payment.deposit.failed", "Yo Payment deposit failed", 
+                        "paymentTypeId", new Object[] { e.getMessage() });
+                }
+            }
+        }
 
+        this.savingsAccountTransactionDataValidator.validateTransactionWithPivotDate(transactionDate, account);
+        
+        // Continue with standard processing for other payment types
         final Map<String, Object> changes = new LinkedHashMap<>();
         final PaymentDetail paymentDetail = this.paymentDetailWritePlatformService.createAndPersistPaymentDetail(command, changes);
         boolean isAccountTransfer = false;

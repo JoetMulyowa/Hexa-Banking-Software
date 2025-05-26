@@ -21,25 +21,36 @@ package org.apache.fineract.notification.data;
 import java.io.Serializable;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.experimental.Accessors;
 
+/**
+ * Immutable data object representing SMS notification data
+ */
 @Data
 @NoArgsConstructor
-@Accessors(chain = true)
 public class SmsNotificationData implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     private String phoneNumber;
     private String message;
-    private String messageId;
+    private String referenceId;
+    private String referenceType;
+    private Long entityId;
     private String sender;
     private String service;
     private String password;
 
-    public SmsNotificationData(String phoneNumber, String message, String messageId) {
+    public SmsNotificationData(String phoneNumber, String message, String referenceId) {
         this.phoneNumber = phoneNumber;
         this.message = message;
-        this.messageId = messageId;
+        this.referenceId = referenceId;
+    }
+
+    public SmsNotificationData(String phoneNumber, String message, String referenceId, String referenceType, Long entityId) {
+        this.phoneNumber = phoneNumber;
+        this.message = message;
+        this.referenceId = referenceId;
+        this.referenceType = referenceType;
+        this.entityId = entityId;
     }
 }

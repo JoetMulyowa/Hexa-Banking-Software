@@ -40,6 +40,12 @@ public class MomoPaymentData {
     private String vendorTranId;
     private String tranNarration;
 
+    // Fields for savings deposit
+    private String mobileNumber;
+    private BigDecimal amount;
+    private String note;
+    private String paymentTypeCode;
+
     public MomoPaymentData(String accountNumber, BigDecimal tranAmount, String accountType, String tranType, String currency,
             String accountName, String paymentDate, String vendorTranId, String tranNarration) {
         this.accountNumber = accountNumber;
@@ -51,5 +57,14 @@ public class MomoPaymentData {
         this.paymentDate = paymentDate;
         this.vendorTranId = vendorTranId;
         this.tranNarration = tranNarration;
+    }
+
+    /**
+     * Creates a new MomoPaymentData object with the specified amount and mobile number for savings deposit
+     */
+    public MomoPaymentData(BigDecimal amount, String mobileNumber, String note) {
+        this.amount = amount;
+        this.mobileNumber = mobileNumber;
+        this.note = note;
     }
 }

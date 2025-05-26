@@ -26,12 +26,14 @@ import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.apache.fineract.infrastructure.core.domain.AbstractAuditableWithUTCDateTimeCustom;
 import org.apache.fineract.portfolio.loanaccount.domain.Loan;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanTransaction;
 
 @Data
+@EqualsAndHashCode(callSuper=false)
 @Getter
 @Entity
 @Table(name = "m_momo_loan_payment_transaction")
@@ -58,7 +60,7 @@ public class MomoLoanPaymentTransaction extends AbstractAuditableWithUTCDateTime
     private Boolean reversed;
 
     @Column(name = "transaction_charge", scale = 6, precision = 19)
-    private BigDecimal tranCharge;
+    private BigDecimal tranCharge = BigDecimal.ZERO;
 
     @Column(name = "status_code")
     private String statusCode;
@@ -83,4 +85,46 @@ public class MomoLoanPaymentTransaction extends AbstractAuditableWithUTCDateTime
 
     public MomoLoanPaymentTransaction() {}
 
+    /**
+     * Creates a new instance of the MomoLoanPaymentTransaction
+     *
+     * @param loanTransaction
+     *            the loan transaction
+     * @param loan
+     *            the loan
+     * @param accountNumber
+     *            the account number (mobile number)
+     * @param amount
+     *            the transaction amount
+     * @param statusCode
+     *            the status code
+     * @param narration
+     *            the transaction narration/description
+     * @param requestBody
+     *            the request body sent to the payment provider
+     * @param responseBody
+     *            the response received from the payment provider
+     * @param statusDesc
+     *            the status description
+     * @return a new MomoLoanPaymentTransaction instance
+     */
+    public static MomoLoanPaymentTransaction instance(LoanTransaction loanTransaction, Loan loan, String accountNumber, BigDecimal amount,
+            Integer statusCode, String narration, String requestBody, String responseBody, String statusDesc) {
+
+        MomoLoanPaymentTransaction transaction = new MomoLoanPaymentTransaction();
+        transaction.loan = loan;
+        transaction.loanTransaction = loanTransaction;
+        transaction.dateOf = LocalDate.now();
+        transaction.amount = amount;
+        transaction.reversed = false;
+        transaction.statusCode = statusCode != null ? statusCode.toString() : null;
+        transaction.statusDesc = statusDesc;
+        transaction.middlewareReferenceNo = accountNumber;
+        transaction.vendorTranId = narration;
+        transaction.requestBody = requestBody;
+        transaction.responseBody = responseBody;
+        transaction.tranCharge = BigDecimal.ZERO;
+
+        return transaction;
+    }
 }

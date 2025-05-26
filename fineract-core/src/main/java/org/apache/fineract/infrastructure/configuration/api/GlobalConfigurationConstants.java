@@ -41,23 +41,22 @@ public final class GlobalConfigurationConstants {
     public static final String ROUNDING_MODE = "rounding-mode";
     public static final String BACKDATE_PENALTIES_ENABLED = "backdate-penalties-enabled";
     public static final String ORGANISATION_START_DATE = "organisation-start-date";
-    public static final String PAYMENT_TYPE_APPLICABLE_FOR_DISBURSEMENT_CHARGES = "paymenttype-applicable-for-disbursement-charges";
-    public static final String INTEREST_CHARGED_FROM_DATE_SAME_AS_DISBURSAL_DATE = "interest-charged-from-date-same-as-disbursal-date";
-    public static final String SKIP_REPAYMENT_ON_FIRST_DAY_OF_MONTH = "skip-repayment-on-first-day-of-month";
-    public static final String CHANGE_EMI_IF_REPAYMENT_DATE_SAME_AS_DISBURSEMENT_DATE = "change-emi-if-repaymentdate-same-as-disbursementdate";
-    public static final String DAILY_TPT_LIMIT = "daily-tpt-limit";
+    public static final String ENTITY_DATATABLE_CHECK = "entity-datatable-check";
+    public static final String LOAN_RESCHEDULE_REASON = "loan-reschedule-reason";
+    public static final String SAVINGS_TRANSACTION = "savings-transaction";
+    public static final String LOAN_TRANSACTION_TYPE = "loan-transaction-type";
     public static final String ENABLE_ADDRESS = "enable-address";
-    public static final String SUB_RATES = "sub-rates";
-    public static final String LOAN_RESCHEDULE_IS_FIRST_PAYDAY_ALLOWED_ON_HOLIDAY = "loan-reschedule-is-first-payday-allowed-on-holiday";
-    public static final String ACCOUNT_MAPPING_FOR_PAYMENT_TYPE = "account-mapping-for-payment-type";
-    public static final String ACCOUNT_MAPPING_FOR_CHARGE = "account-mapping-for-charge";
-    public static final String FIXED_DEPOSIT_TRANSFER_INTEREST_NEXT_DAY_FOR_PERIOD_END_POSTING = "fixed-deposit-transfer-interest-next-day-for-period-end-posting";
     public static final String ALLOW_BACKDATED_TRANSACTION_BEFORE_INTEREST_POSTING = "allow-backdated-transaction-before-interest-posting";
-    public static final String ALLOW_BACKDATED_TRANSACTION_BEFORE_INTEREST_POSTING_DATE_FOR_DAYS = "allow-backdated-transaction-before-interest-posting-date-for-days";
-    public static final String CUSTOM_ACCOUNT_NUMBER_LENGTH = "custom-account-number-length";
-    public static final String RANDOM_ACCOUNT_NUMBER = "random-account-number";
+    public static final String MAX_NUMBER_OF_LOAN_EXTENSIONS_ALLOWED = "max-number-of-loan-extensions-allowed";
     public static final String IS_INTEREST_TO_BE_RECOVERED_FIRST_WHEN_GREATER_THAN_EMI = "is-interest-to-be-recovered-first-when-greater-than-emi";
     public static final String IS_PRINCIPAL_COMPOUNDING_DISABLED_FOR_OVERDUE_LOANS = "is-principal-compounding-disabled-for-overdue-loans";
+    public static final String IS_AUTORESIZE_ENABLED = "is-autoresize-enabled";
+    public static final String SKIP_REPAYMENT_ON_FIRST_DAY_OF_MONTH = "skip-repayment-on-first-day-of-month";
+    public static final String SKIP_REPAYMENT_ON_FIRST_DAY_OF_MONTH_FOR_LOANS_WITH_DAILY_FREQUENCY = "skip-repayment-on-first-day-of-month-for-loans-with-daily-frequency";
+    public static final String ALLOW_UPFRONT_FIXED_DOWNPAYMENT = "allow-upfront-fixed-downpayment";
+    public static final String ALLOW_UPFRONT_PERCENTAGE_DOWNPAYMENT = "allow-upfront-percentage-downpayment";
+    public static final String ALLOW_GRACE_ON_ARREARS_AGEING = "allow-grace-on-arrears-ageing";
+    public static final String UPDATE_STATUS_DISBURSE_TO_CLIENT_LOAN_FOR_MANUAL_TRANSACTIONS = "update-status-disburse-to-client-loan-for-manual-transactions";
     public static final String ENABLE_BUSINESS_DATE = "enable-business-date";
     public static final String ENABLE_AUTOMATIC_COB_DATE_ADJUSTMENT = "enable-automatic-cob-date-adjustment";
     public static final String ENABLE_POST_REVERSAL_TXNS_FOR_REVERSE_TRANSACTIONS = "enable-post-reversal-txns-for-reverse-transactions";
@@ -77,7 +76,22 @@ public final class GlobalConfigurationConstants {
     public static final String ENABLE_PAYMENT_HUB_INTEGRATION = "enable-payment-hub-integration";
     public static final String ENABLE_IMMEDIATE_CHARGE_ACCRUAL_POST_MATURITY = "enable-immediate-charge-accrual-post-maturity";
     public static final String ENABLE_SMS_NOTIFICATIONS = "enable-sms-notifications";
-    public static final String ENABLE_SURE_MOBILE_MONEY_PAYMENT = "enable-surepay-mobile-money-payment";
+    public static final String ENABLE_SURE_MOBILE_MONEY_PAYMENT = "enable-sure-mobile-money-payment";
+    public static final String ENABLE_YO_PAYMENT_MOBILE_MONEY_PAYMENT = "enable-yo-payment-mobile-money-payment";
+
+    // Adding missing constants
+    public static final String PAYMENT_TYPE_APPLICABLE_FOR_DISBURSEMENT_CHARGES = "payment-type-applicable-for-disbursement-charges";
+    public static final String LOAN_RESCHEDULE_IS_FIRST_PAYDAY_ALLOWED_ON_HOLIDAY = "loan-reschedule-is-first-payday-allowed-on-holiday";
+    public static final String INTEREST_CHARGED_FROM_DATE_SAME_AS_DISBURSAL_DATE = "interest-charged-from-date-same-as-disbursal-date";
+    public static final String CHANGE_EMI_IF_REPAYMENT_DATE_SAME_AS_DISBURSEMENT_DATE = "change-emi-if-repayment-date-same-as-disbursement-date";
+    public static final String DAILY_TPT_LIMIT = "daily-tpt-limit";
+    public static final String ALLOW_BACKDATED_TRANSACTION_BEFORE_INTEREST_POSTING_DATE_FOR_DAYS = "allow-backdated-transaction-before-interest-posting-date-for-days";
+    public static final String SUB_RATES = "sub-rates";
+    public static final String ACCOUNT_MAPPING_FOR_PAYMENT_TYPE = "account-mapping-for-payment-type";
+    public static final String ACCOUNT_MAPPING_FOR_CHARGE = "account-mapping-for-charge";
+    public static final String FIXED_DEPOSIT_TRANSFER_INTEREST_NEXT_DAY_FOR_PERIOD_END_POSTING = "fixed-deposit-transfer-interest-next-day-for-period-end-posting";
+    public static final String CUSTOM_ACCOUNT_NUMBER_LENGTH = "custom-account-number-length";
+    public static final String RANDOM_ACCOUNT_NUMBER = "random-account-number";
 
     private GlobalConfigurationConstants() {}
 }
